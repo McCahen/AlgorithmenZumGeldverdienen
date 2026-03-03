@@ -379,7 +379,7 @@
         // --- 3. Linien zeichnen ---
         // Aktienkurs (Hintergrund gestrichelt, nutzt rechte Skala)
         ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.4)";
+        ctx.strokeStyle = "rgba(10, 95, 45, 0.4)";
         ctx.lineWidth = 2;
         ctx.beginPath();
         history.forEach((v, i) => i === 0 ? ctx.moveTo(getX(i), getYPrice(v)) : ctx.lineTo(getX(i), getYPrice(v)));
