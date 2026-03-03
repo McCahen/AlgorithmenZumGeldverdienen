@@ -95,18 +95,21 @@
             line-height: 1.4;
         }
 
-        /* Spezielle Farbe für die "Haupt-Börse" */
-        .main-card {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        .challenge-card {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); /* Gold/Bernstein Gradient */
             color: white;
-            grid-column: span 2; /* Breiter am Desktop */
+            grid-column: span 1;
+            border: none;
+            animation: pulse 2s infinite; /* Ein subtiles Pulsieren, um Aufmerksamkeit zu erzeugen */
         }
         
-        .main-card h3, .main-card p { color: white; }
-        .main-card:hover { border-color: transparent; }
-
-        @media (max-width: 600px) {
-            .main-card { grid-column: span 1; }
+        .challenge-card h3, .challenge-card p {
+            color: white;
+        }
+        
+        .challenge-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 30px rgba(217, 119, 6, 0.4);
         }
     </style>
 </head>
@@ -141,6 +144,12 @@
             <span class="icon">🧬</span>
             <h3>Kombiniert</h3>
             <p>Sind mehr Strategien besser? Challenge Deine Klasse!</p>
+        </a>
+        
+        <a href="challenge.html" class="nav-card challenge-card">
+            <span class="icon">🏆</span>
+            <h3>Final Challenge</h3>
+            <p>Teste Deinen Algorithmus gegen die der Anderen und gewinne einen Preis!</p>
         </a>
     </nav>
 </div>
