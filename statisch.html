@@ -63,6 +63,7 @@
     let shares = 0;
     let isRunning = false;
     let history = [100];
+    let portfolioHistory = [1000]; // Startwert des Depots
 
     function toggleSimulation() {
         isRunning = !isRunning;
@@ -93,7 +94,11 @@
             console.log("Verkauf bei " + price);
         }
 
-        updateUI();
+        let totalValue = +(cash + shares * price).toFixed(2);
+        portfolioHistory.push(totalValue);
+        if(portfolioHistory.length > 50) portfolioHistory.shift(); // Limitieren auf 50 Datenpunkte
+        
+        updateUI(totalValue);
         setTimeout(runStep, 500); // Alle 0.5 Sek ein Tick
     }
 
