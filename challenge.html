@@ -130,34 +130,38 @@
             const { data, error } = await tradingDb
                 .from('market')
                 .select('challenge_active')
-                .eq('id', 1) // STIMMT DIE ID? Prüfe das in Supabase!
-                .single();
-    
-            if (error) {
-                console.error("Supabase Abfragefehler:", error.message);
-                return;
-            }
+                .eq('id', 1); // Wir nehmen hier absichtlich kein .single(), um Fehler zu vermeiden
     
             const btn = document.getElementById('mainStartBtn');
             if (!btn) return;
     
-            // Wir prüfen auf alle Varianten: echtes true, Text "true" oder Text "True"
-            const status = data.challenge_active;
-            const isActive = (status === true || status === 'true' || status === 'True');
+            // DEBUGGING: Was kommt wirklich an? (F12 Konsole prüfen)
+            console.log("ROH-DATEN von Supabase:", data);
     
-            if (data && isActive) {
+            let isActive = false;
+    
+            if (data && data.length > 0) {
+                const val = data[0].challenge_active;
+                // Prüft auf echtes true, den Text "true" oder "True"
+                if (val === true || val === 'true' || val === 'True') {
+                    isActive = true;
+                }
+            }
+    
+            if (isActive) {
                 btn.disabled = false;
                 btn.innerText = "🚀 Börse betreten";
-                btn.style.background = "#10b981";
+                btn.style.background = "#10b981"; // Erfolg: Grün
                 btn.style.cursor = "pointer";
+                btn.style.opacity = "1";
             } else {
                 btn.disabled = true;
                 btn.innerText = "🔒 Warte auf Freigabe...";
-                btn.style.background = "#cbd5e1";
-                btn.style.cursor = "not-allowed";
+                btn.style.background = "#cbd5e1"; // Inaktiv: Grau
+                btn.style.opacity = "0.5";
             }
         } catch(e) {
-            console.error("Kritischer Verbindungsfehler:", e);
+            console.error("Fehler im Status-Check:", e);
         }
     }
     setInterval(checkChallengeStatus, 2000);
