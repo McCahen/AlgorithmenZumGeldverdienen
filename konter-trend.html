@@ -52,7 +52,8 @@
     let shares = 0;
     let isRunning = false;
     let history = [100];
-
+    let portfolioHistory = [1000];
+    
     function toggleSimulation() {
         isRunning = !isRunning;
         document.getElementById('startBtn').innerText = isRunning ? "Stoppen" : "Simulation Starten";
@@ -89,7 +90,9 @@
                 console.log("Trend-Verkauf bei " + price);
             }
         }
-
+        
+    updateUI(total);
+    setTimeout(runStep, 500);
         
     function updateUI(total) {
         document.getElementById('price').innerText = price.toFixed(2) + " €";
@@ -174,9 +177,7 @@
         portfolioHistory.forEach((v, i) => i === 0 ? ctx.moveTo(getX(i), getYPort(v)) : ctx.lineTo(getX(i), getYPort(v)));
         ctx.stroke();
     }
-        updateUI();
-        setTimeout(runStep, 500);
-    }
+
 </script>
 </body>
 </html>
