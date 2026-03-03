@@ -89,24 +89,52 @@
             const { data } = await tradingDb.from('market').select('price').eq('id', 1).single();
             
             if (data) {
-                // PRÜFUNG AUF RESET-SIGNAL
+                // --- RESET-LOGIK START ---
                 if (data.price === -1) {
+                    // Interne Werte zurücksetzen
                     cash = 1000;
                     shares = 0;
                     history = [];
-                    document.getElementById('log-msg').innerText = "♻️ Reset durch Lehrer erfolgt!";
+                    
+                    // UI sofort aktualisieren
+                    document.getElementById('log-msg').innerText = "♻️ Markt-Reset: Start bei 1000€";
+                    document.getElementById('log-msg').style.color = "#38bdf8";
                     updateUI(1000);
-                    return; // Tick überspringen
-                }
     
+                    // Den zurückgesetzten Wert SOFORT an das Leaderboard senden
+                    // Damit verschwindet der alte hohe/niedrige Score sofort.
+                    await tradingDb.from('leaderboard').upsert({ 
+                        name: playerName, 
+                        score: 1000.00 
+                    });
+                    
+                    // Loop hier abbrechen und auf den nächsten echten Preis warten
+                    setTimeout(runLoop, 1500);
+                    return; 
+                }
+                // --- RESET-LOGIK ENDE ---
+    
+                // Normaler Ablauf
                 price = data.price;
-                // ... Rest der Logik (history.push, checkRules, etc.)
-                
+                history.push(price);
+                if(history.length > 50) history.shift();
+    
+                // Regeln prüfen
+                checkRule(1, "BUY");  
+                checkRule(2, "SELL"); 
+                checkRule(3, "BUY"); 
+                checkRule(4, "SELL");
+    
+                // Aktuellen Wert berechnen und senden
                 let totalValue = +(cash + shares * price).toFixed(2);
                 await tradingDb.from('leaderboard').upsert({ name: playerName, score: totalValue });
+    
                 updateUI(totalValue);
             }
-        } catch (e) { console.error("Sync Error:", e); }
+        } catch (e) { 
+            console.error("Sync Error:", e); 
+        }
+        
         setTimeout(runLoop, 1500);
     }
 
