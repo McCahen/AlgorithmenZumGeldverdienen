@@ -37,7 +37,7 @@
 <body>
 
     <div class="header">
-        <h1>Markt-Kontrolle Pro</h1>
+        <h1>Lehrpersonen Portal: Algorithmen zum Geldverdienen</h1>
     </div>
 
     <div class="console-card">
@@ -65,6 +65,15 @@
             </div>
         </div>
 
+        <div class="vol-box" style="margin-top: 20px; border-color: #f59e0b;">
+            <div class="status-text" style="color: #f59e0b;">Challenge Modus</div>
+            <div class="vol-controls">
+                <button id="challengeToggleBtn" class="main-btn btn-start" 
+                        style="background: #d97706; margin-bottom: 0;" 
+                        onclick="toggleChallenge()">🔓 Challenge freischalten</button>
+            </div>
+        </div>
+
         <button class="reset-link" onclick="fullReset()">Leaderboard & Markt zurücksetzen</button>
     </div>
 
@@ -80,6 +89,24 @@
         let marketActive = false;
         let tickerId = null;
 
+        let challengeActive = false;
+
+        async function toggleChallenge() {
+            challengeActive = !challengeActive;
+            const btn = document.getElementById('challengeToggleBtn');
+            
+            // Update in der DB
+            await db.from('market').update({ challenge_active: challengeActive }).eq('id', 1);
+            
+            if (challengeActive) {
+                btn.innerText = "🔒 Challenge sperren";
+                btn.style.background = "#ef4444";
+            } else {
+                btn.innerText = "🔓 Challenge freischalten";
+                btn.style.background = "#d97706";
+            }
+        }
+        
         function toggleMarket() {
             const btn = document.getElementById('masterAction');
             const status = document.getElementById('statusInfo');
