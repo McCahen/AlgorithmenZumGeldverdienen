@@ -2,121 +2,90 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schüler-Terminal | Algorithmen zum Geldverdienen</title>
+    <title>Schüler-Terminal | Algorithmen-Workshop</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        /* Setup Screen */
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; shadow: 0 4px 15px rgba(0,0,0,0.1); }
         #setup-screen { text-align: center; padding: 40px 0; }
-        input[type="text"] { padding: 12px; width: 250px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; }
-        .btn-start { background: #2ecc71; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 1em; font-weight: bold; }
-
-        /* Trading Screen */
         .market-info { display: flex; justify-content: space-around; background: #2c3e50; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .rule-card { border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #fafafa; font-size: 0.9em; }
+        .rule-card { border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #fafafa; }
+        input[type="number"] { width: 45px; }
+        canvas { background: #fff; border: 1px solid #eee; width: 100%; height: 180px; border-radius: 8px; }
         .buy { border-left: 5px solid #27ae60; }
         .sell { border-left: 5px solid #e74c3c; }
-        input[type="number"] { width: 45px; padding: 4px; }
-        
-        canvas { background: #fff; border: 1px solid #eee; width: 100%; height: 180px; border-radius: 8px; }
-        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; background: #bbb; }
-        .online { background: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .btn-start { background: #2ecc71; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="setup-screen">
-        <h2>🚀 Algorithmen-Workshop</h2>
-        <p>Gib deinen Namen oder Teamnamen ein, um dich mit der Börse zu verbinden:</p>
-        <input type="text" id="playerName" placeholder="z.B. Team Lambda">
+        <h2>🚀 Algorithmen-Börse</h2>
+        <input type="text" id="playerName" placeholder="Teamname eingeben...">
         <button class="btn-start" onclick="startTrading()">Verbinden</button>
     </div>
 
     <div id="trading-screen" style="display:none;">
         <div class="market-info">
-            <div>Live-Kurs: <strong id="price">...</strong> €</div>
-            <div>Depot: <strong id="total">1000.00</strong> €</div>
-            <div><span id="conn-status" class="status-dot"></span> <small id="player-label"></small></div>
+            <div>Kurs: <strong id="price">...</strong> €</div>
+            <div>Mein Depot: <strong id="total">1000.00</strong> €</div>
+            <div>Team: <span id="player-label"></span></div>
         </div>
 
         <div class="strategy-grid">
-            <div class="rule-card buy">
-                <strong>📈 Trend-Kauf</strong><br>
-                Wenn Kurs in <input type="number" id="t1" value="5"> Ticks<br>
-                um > <input type="number" id="p1" value="2"> % steigt: <input type="checkbox" id="e1"> Aktiv
-            </div>
-            <div class="rule-card sell">
-                <strong>💰 Gewinnmitnahme</strong><br>
-                Wenn Kurs in <input type="number" id="t2" value="10"> Ticks<br>
-                um > <input type="number" id="p2" value="5"> % steigt: <input type="checkbox" id="e2"> Aktiv
-            </div>
-            <div class="rule-card buy">
-                <strong>📉 Dip-Kauf</strong><br>
-                Wenn Kurs in <input type="number" id="t3" value="8"> Ticks<br>
-                um > <input type="number" id="p3" value="3"> % fällt: <input type="checkbox" id="e3"> Aktiv
-            </div>
-            <div class="rule-card sell">
-                <strong>🛡️ Stop-Loss</strong><br>
-                Wenn Kurs in <input type="number" id="t4" value="3"> Ticks<br>
-                um > <input type="number" id="p4" value="2"> % fällt: <input type="checkbox" id="e4"> Aktiv
-            </div>
+            <div class="rule-card buy"><strong>📈 Trend-Kauf</strong><br>In <input type="number" id="t1" value="5"> Ticks um > <input type="number" id="p1" value="2"> % gestiegen? <input type="checkbox" id="e1"></div>
+            <div class="rule-card sell"><strong>💰 Gewinn</strong><br>In <input type="number" id="t2" value="10"> Ticks um > <input type="number" id="p2" value="5"> % gestiegen? <input type="checkbox" id="e2"></div>
+            <div class="rule-card buy"><strong>📉 Dip-Kauf</strong><br>In <input type="number" id="t3" value="8"> Ticks um > <input type="number" id="p3" value="3"> % gefallen? <input type="checkbox" id="e3"></div>
+            <div class="rule-card sell"><strong>🛡️ Stop-Loss</strong><br>In <input type="number" id="t4" value="3"> Ticks um > <input type="number" id="p4" value="2"> % gefallen? <input type="checkbox" id="e4"></div>
         </div>
-
         <canvas id="chart"></canvas>
-        <p style="text-align: center; color: #7f8c8d;">
-            Cash: <span id="cash">1000.00</span> € | Aktien: <span id="shares">0</span>
-        </p>
+        <p style="text-align:center">Cash: <span id="cash">1000.00</span> € | Aktien: <span id="shares">0</span></p>
     </div>
 </div>
 
 <script>
-    // --- KONFIGURATION (HIER DEINE DATEN EINTRAGEN) ---
+    // --- KONFIGURATION ---
     const SUPABASE_URL = 'https://tzatuzzwdvkayowffbxy.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6YXR1enp3ZHZrYXlvd2ZmYnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTI1NDcsImV4cCI6MjA4ODEyODU0N30.cz5jRfhlOGs9OhFeIfdORPjDljcysI_6db3ny9fLRE4';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // WICHTIG: Variable umbenannt in 'tradingDb', um Konflikt mit der Library zu vermeiden
+    const tradingDb = supabase.createClient(S_URL, S_KEY);
 
     let price = 100, cash = 1000, shares = 0, history = [], playerName = "";
 
     async function startTrading() {
         playerName = document.getElementById('playerName').value.trim();
-        if(!playerName) return alert("Name fehlt!");
+        if(!playerName) return alert("Bitte Namen eingeben!");
         
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('trading-screen').style.display = 'block';
         document.getElementById('player-label').innerText = playerName;
-        document.getElementById('conn-status').classList.add('online');
 
         runLoop();
     }
 
     async function runLoop() {
-        // 1. Kurs vom Lehrer-Dashboard holen
-        const { data, error } = await supabaseClient.from('market').select('price').eq('id', 1).single();
+        try {
+            const { data } = await tradingDb.from('market').select('price').eq('id', 1).single();
+            if (data) {
+                price = data.price;
+                history.push(price);
+                if(history.length > 50) history.shift();
+
+                checkRule(1, "BUY", true);  
+                checkRule(2, "SELL", true); 
+                checkRule(3, "BUY", false); 
+                checkRule(4, "SELL", false);
+
+                let totalValue = +(cash + shares * price).toFixed(2);
+                await tradingDb.from('leaderboard').upsert({ name: playerName, score: totalValue });
+
+                updateUI(totalValue);
+            }
+        } catch (e) { console.error("Verbindungsfehler:", e); }
         
-        if (data) {
-            price = data.price;
-            history.push(price);
-            if(history.length > 50) history.shift();
-
-            // 2. Strategie-Regeln prüfen
-            checkRule(1, "BUY", true);  // Trend-Kauf
-            checkRule(2, "SELL", true); // Gewinnmitnahme
-            checkRule(3, "BUY", false); // Dip-Kauf
-            checkRule(4, "SELL", false);// Stop-Loss
-
-            // 3. Ergebnis an Leaderboard senden
-            let totalValue = +(cash + shares * price).toFixed(2);
-            await supabaseClient.from('leaderboard').upsert({ name: playerName, score: totalValue });
-
-            updateUI(totalValue);
-        }
-        
-        // Synchronisationstakt (1.5 Sek)
         setTimeout(runLoop, 1500);
     }
 
@@ -124,11 +93,9 @@
         if (!document.getElementById('e' + id).checked) return;
         let t = parseInt(document.getElementById('t' + id).value);
         let p = parseFloat(document.getElementById('p' + id).value) / 100;
-
         if (history.length > t) {
             let oldPrice = history[history.length - 1 - t];
             let change = (price - oldPrice) / oldPrice;
-
             if (posDir && change >= p) executeTrade(action);
             else if (!posDir && change <= -p) executeTrade(action);
         }
@@ -151,7 +118,8 @@
         const canvas = document.getElementById('chart'), ctx = canvas.getContext('2d');
         ctx.clearRect(0,0,canvas.width, canvas.height);
         ctx.strokeStyle = "#3498db"; ctx.lineWidth = 2; ctx.beginPath();
-        const minP = Math.min(...history) * 0.98, maxP = Math.max(...history) * 1.02;
+        if(history.length < 2) return;
+        const minP = Math.min(...history) * 0.99, maxP = Math.max(...history) * 1.01;
         history.forEach((p, i) => {
             let x = (i / (history.length-1)) * canvas.width;
             let y = canvas.height - ((p - minP) / (maxP - minP)) * canvas.height;
