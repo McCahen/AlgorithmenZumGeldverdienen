@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Lehrer-Dashboard | Markt-Kontrolle</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; background: #1a1a1a; color: white; }
+        .panel { background: #2a2a2a; padding: 20px; border-radius: 10px; border: 1px solid #444; }
+        .price-display { font-size: 3em; color: #00ff00; text-align: center; margin: 20px 0; }
+        .controls button { padding: 10px; width: 100%; margin: 5px 0; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #444; }
+        .crash { background: #e74c3c; color: white; }
+        .moon { background: #2ecc71; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h2>🎮 Markt-Steuerung</h2>
+    <div class="price-display" id="currentPrice">100.00 €</div>
+    <div class="controls">
+        <button class="moon" onclick="changeMode('bull')">🚀 Bullenmarkt (Preise steigen)</button>
+        <button onclick="changeMode('sideways')">↔️ Seitwärts (Rauschen)</button>
+        <button class="crash" onclick="changeMode('bear')">📉 Crash (Preise fallen)</button>
+        <hr>
+        <button onclick="resetMarket()">♻️ Markt Reset (100€)</button>
+    </div>
+    <p>Status: <span id="marketTrend">stabil</span></p>
+</div>
+
+<div class="panel">
+    <h2>🏆 Live-Leaderboard (Beamer)</h2>
+    <table>
+        <thead><tr><th>Name</th><th>Depotwert</th></tr></thead>
+        <tbody id="leaderboardBody"></tbody>
+    </table>
+</div>
+
+<script>
+    // DEINE DATEN HIER EINTRAGEN
+    const SUPABASE_URL = 'DEINE_SUPABASE_URL';
+    const SUPABASE_KEY = 'DEIN_SUPABASE_ANON_KEY';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let price = 100;
+    let trend = 'sideways';
+
+    // 1. Kurs-Generator (läuft alle 1,5 Sekunden)
+    setInterval(async () => {
+        let change = (Math.random() - 0.5) * 2; // Grundrauschen
+        if(trend === 'bull') change += 1.5;
+        if(trend === 'bear') change -= 1.8;
+
+        price = Math.max(5, +(price + change).toFixed(2));
+        document.getElementById('currentPrice').innerText = price.toFixed(2) + " €";
+
+        // Preis an Supabase senden
+        await supabase.from('market').update({ price: price, trend: trend }).eq('id', 1);
+    }, 1500);
+
+    // 2. Leaderboard-Update (alle 3 Sekunden)
+    setInterval(async () => {
+        const { data } = await supabase.from('leaderboard').select('*').order('score', { ascending: false });
+        const tbody = document.getElementById('leaderboardBody');
+        tbody.innerHTML = data.map(row => `<tr><td>${row.name}</td><td>${row.score.toFixed(2)} €</td></tr>`).join('');
+    }, 3000);
+
+    function changeMode(newTrend) {
+        trend = newTrend;
+        document.getElementById('marketTrend').innerText = newTrend;
+    }
+
+    async function resetMarket() {
+        price = 100;
+        trend = 'sideways';
+        await supabase.from('leaderboard').delete().neq('name', 'dummy'); // Alle löschen für neue Runde
+    }
+</script>
+</body>
+</html>
