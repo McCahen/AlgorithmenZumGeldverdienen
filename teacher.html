@@ -5,44 +5,52 @@
     <title>🕹️ Markt-Konsole | Lehrer-Ansicht</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .panel { background: #1e293b; padding: 40px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #334155; width: 450px; text-align: center; }
+        /* Design-Anpassung an das Leaderboard */
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        h2 { color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; }
-        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.8em; margin-bottom: 20px; background: #334155; color: #94a3b8; }
-        .active-status { background: #166534; color: #4ade80; }
-
-        .price-display { font-size: 4.5em; font-family: 'Courier New', monospace; font-weight: bold; color: #2ecc71; margin: 20px 0; }
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2.5em; color: #38bdf8; margin: 0; text-transform: uppercase; letter-spacing: 3px; }
         
-        .main-btn { width: 100%; padding: 20px; font-size: 1.2em; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
-        .btn-start { background: #22c55e; color: white; }
-        .btn-stop { background: #ef4444; color: white; }
+        /* Die zentrale Konsole (gleicher Karten-Stil wie Leaderboard-Zeilen) */
+        .console-card { background: #1e293b; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 500px; text-align: center; }
+        
+        .price-display { font-size: 5em; font-family: 'Courier New', monospace; font-weight: bold; color: #2ecc71; margin: 10px 0; text-shadow: 0 0 15px rgba(46, 204, 113, 0.3); }
+        
+        /* Buttons im einheitlichen Stil */
+        .main-btn { width: 100%; padding: 20px; font-size: 1.2em; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s; margin-bottom: 25px; text-transform: uppercase; }
+        .btn-start { background: #22c55e; color: white; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); }
+        .btn-stop { background: #ef4444; color: white; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4); }
+        
+        .trend-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 30px; }
+        .trend-btn { background: #334155; border: 1px solid #475569; color: white; padding: 15px 5px; border-radius: 12px; cursor: pointer; font-size: 1em; transition: 0.2s; }
+        .trend-btn:hover { background: #475569; }
+        .trend-btn.active { background: #38bdf8; border-color: #0ea5e9; font-weight: bold; transform: scale(1.05); }
 
-        .trend-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; }
-        .trend-btn { background: #334155; border: 1px solid #475569; color: white; padding: 15px 5px; border-radius: 8px; cursor: pointer; font-size: 0.9em; }
-        .trend-btn.active { background: #38bdf8; border-color: #0ea5e9; font-weight: bold; }
-
-        .reset-btn { background: transparent; color: #64748b; border: none; cursor: pointer; text-decoration: underline; font-size: 0.8em; }
+        .status-text { color: #94a3b8; font-size: 0.9em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .reset-link { color: #64748b; background: none; border: none; cursor: pointer; text-decoration: underline; font-size: 0.8em; margin-top: 20px; }
+        .reset-link:hover { color: #94a3b8; }
     </style>
 </head>
 <body>
 
-<div class="panel">
-    <h2>Markt-Kontrolle</h2>
-    <div id="statusBadge" class="status-badge">MARKT ANGEHALTEN</div>
-
-    <div class="price-display" id="priceOut">100.00</div>
-
-    <button id="masterBtn" class="main-btn btn-start" onclick="toggleMarket()">▶ MARKT STARTEN</button>
-
-    <div class="trend-grid">
-        <button id="btn-bull" class="trend-btn" onclick="setTrend('bull')">🚀 BULL</button>
-        <button id="btn-sideways" class="trend-btn active" onclick="setTrend('sideways')">↔ NEUTRAL</button>
-        <button id="btn-bear" class="trend-btn" onclick="setTrend('bear')">📉 BEAR</button>
+    <div class="header">
+        <h1>Markt-Steuerung</h1>
     </div>
 
-    <button class="reset-btn" onclick="resetAll()">Datenbank & Leaderboard zurücksetzen</button>
-</div>
+    <div class="console-card">
+        <div id="statusInfo" class="status-text">Status: Angehalten</div>
+        <div class="price-display" id="priceLabel">100.00</div>
+
+        <button id="masterAction" class="main-btn btn-start" onclick="toggleMarket()">▶ Markt Starten</button>
+
+        <div class="trend-grid">
+            <button id="btn-bull" class="trend-btn" onclick="setTrend('bull')">🚀 Bull</button>
+            <button id="btn-sideways" class="trend-btn active" onclick="setTrend('sideways')">↔ Neutral</button>
+            <button id="btn-bear" class="trend-btn" onclick="setTrend('bear')">📉 Bear</button>
+        </div>
+
+        <button class="reset-link" onclick="fullReset()">Leaderboard & Markt zurücksetzen</button>
+    </div>
 
 <script>
     // --- INITIALISIERUNG ---
