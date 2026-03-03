@@ -57,6 +57,23 @@
     <a href="kombiniert.html">🧬 Kombiniert</a>
 </nav>
 
+    
+<div id="setup-screen" style="text-align: center; padding: 40px 0;">
+    <div style="margin-bottom: 20px; font-size: 0.8em; color: #64748b;">
+        Server-Status: <span id="status-dot" style="display:inline-block; width:10px; height:10px; border-radius:50%; background:red; margin-right:5px;"></span>
+        <span id="status-text">Verbinde...</span>
+    </div>
+
+    <h2>🚀 Algo-Workshop: Finale Challenge</h2>
+    <p>Gib Deinen Namen ein:</p>
+    <input type="text" id="playerName" placeholder="Name...">
+    <br>
+    <button id="mainStartBtn" class="btn-start" onclick="startTrading()" disabled>
+        🔒 Warte auf Freigabe...
+    </button>
+</div>
+
+    
 <div class="container">
     <div id="setup-screen" style="text-align: center; padding: 40px 0;">
         <h2>🚀 Algo-Workshop: Finale Challenge</h2>
@@ -128,44 +145,52 @@
     let price = 100, cash = 1000, shares = 0, history = [], portfolioHistory = [], playerName = "";
 
     async function checkChallengeStatus() {
+        const dot = document.getElementById('status-dot');
+        const statusTxt = document.getElementById('status-text');
+        const btn = document.getElementById('mainStartBtn');
+    
         try {
             const { data, error } = await tradingDb
                 .from('market')
                 .select('challenge_active')
-                .eq('id', 1); // Wir nehmen hier absichtlich kein .single(), um Fehler zu vermeiden
+                .eq('id', 1);
     
-            const btn = document.getElementById('mainStartBtn');
-            if (!btn) return;
-    
-            // DEBUGGING: Was kommt wirklich an? (F12 Konsole prüfen)
-            console.log("ROH-DATEN von Supabase:", data);
-    
-            let isActive = false;
+            if (error) throw error;
     
             if (data && data.length > 0) {
-                const val = data[0].challenge_active;
-                // Prüft auf echtes true, den Text "true" oder "True"
-                if (val === true || val === 'true' || val === 'True') {
-                    isActive = true;
-                }
-            }
+                // Verbindung steht! Gelb (Warten) oder Grün (Go!)
+                const active = data[0].challenge_active;
+                const isActive = (active === true || active === 'true' || active === 'True');
     
-            if (isActive) {
-                btn.disabled = false;
-                btn.innerText = "🚀 Börse betreten";
-                btn.style.background = "#10b981"; // Erfolg: Grün
-                btn.style.cursor = "pointer";
-                btn.style.opacity = "1";
+                if (isActive) {
+                    // ALLES BEREIT!
+                    dot.style.background = "#10b981"; // Grün
+                    statusTxt.innerText = "Challenge gestartet!";
+                    btn.disabled = false;
+                    btn.innerText = "🚀 Börse betreten";
+                    btn.style.background = "#10b981";
+                    btn.style.cursor = "pointer";
+                } else {
+                    // VERBUNDEN, ABER GESPERRT
+                    dot.style.background = "#f59e0b"; // Gelb
+                    statusTxt.innerText = "Verbunden (Warte auf Start)";
+                    btn.disabled = true;
+                    btn.innerText = "🔒 Warte auf Freigabe...";
+                    btn.style.background = "#cbd5e1";
+                }
             } else {
-                btn.disabled = true;
-                btn.innerText = "🔒 Warte auf Freigabe...";
-                btn.style.background = "#cbd5e1"; // Inaktiv: Grau
-                btn.style.opacity = "0.5";
+                // Keine Zeile mit ID 1 gefunden
+                dot.style.background = "red";
+                statusTxt.innerText = "Fehler: Markt-Daten nicht gefunden (ID 1?)";
             }
         } catch(e) {
-            console.error("Fehler im Status-Check:", e);
+            // Totale Verbindungsstörung
+            console.error("Supabase Error:", e);
+            dot.style.background = "red";
+            statusTxt.innerText = "Verbindungsfehler (API Key / RLS?)";
         }
     }
+    checkChallengeStatus();
     setInterval(checkChallengeStatus, 2000);
 
     async function startTrading() {
