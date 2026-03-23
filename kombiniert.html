@@ -174,7 +174,7 @@
 
         let total = +(cash + shares * price).toFixed(2);
         portfolioHistory.push(total);
-        if(portfolioHistory.length > 50) portfolioHistory.shift();
+        if(portfolioHistory.length > 100) portfolioHistory.shift();
 
         updateUI(total);
         setTimeout(runStep, 600);
