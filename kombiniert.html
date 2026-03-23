@@ -2,8 +2,19 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Algo-Workshop: Trends kontern</title>
+    <title>Algo-Workshop: Kombinations-Modell</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Spezifische Ergänzung für die Kacheln in der Kombi-Ansicht */
+        .switch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        /* Fix für den Button, da das CSS .btn-start erwartet */
+        .btn-start.running { background: #ef4444 !important; }
+    </style>
 </head>
 <body>
     <header>
@@ -21,6 +32,7 @@
             <a href="challenge.html">Final Challenge</a>
         </nav>
     </header>
+
 <div class="container">
     <h2>🧬 Kombinations-Modell</h2>
     
@@ -30,50 +42,59 @@
     </div>
 
     <div class="strategy-grid">
+        
         <div class="rule-card buy">
-            <h4>📈 Trend-Kauf</h4>
-            <div class="input-group">Zeitraum (Ticks): <input type="number" id="t1" value="5"></div>
-            <div class="input-group">Anstieg (> %): <input type="number" id="p1" value="2"></div>
-            <div class="switch-container">
-                <span style="font-size: 0.8em; font-weight: bold;">Strategie aktiv</span>
-                <label class="ios-switch"><input type="checkbox" id="e1" checked><span class="ios-slider"></span></label>
+            <div class="switch-header">
+                <h4>📈 Trend-Kauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="e1" checked>
+                    <span class="ios-slider"></span>
+                </label>
             </div>
+            <div class="input-group"><span>Ticks:</span> <input type="number" id="t1" value="5"></div>
+            <div class="input-group"><span>Anstieg > %:</span> <input type="number" id="p1" value="2"></div>
         </div>
 
         <div class="rule-card sell">
-            <h4>💰 Gewinnmitnahme</h4>
-            <div class="input-group">Zeitraum (Ticks): <input type="number" id="t2" value="10"></div>
-            <div class="input-group">Anstieg (> %): <input type="number" id="p2" value="5"></div>
-            <div class="switch-container">
-                <span style="font-size: 0.8em; font-weight: bold;">Strategie aktiv</span>
-                <label class="ios-switch"><input type="checkbox" id="e2"><span class="ios-slider"></span></label>
+            <div class="switch-header">
+                <h4>💰 Gewinnmitnahme</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="e2">
+                    <span class="ios-slider"></span>
+                </label>
             </div>
+            <div class="input-group"><span>Ticks:</span> <input type="number" id="t2" value="10"></div>
+            <div class="input-group"><span>Anstieg > %:</span> <input type="number" id="p2" value="5"></div>
         </div>
 
         <div class="rule-card buy">
-            <h4>📉 Dip-Kauf</h4>
-            <div class="input-group">Zeitraum (Ticks): <input type="number" id="t3" value="8"></div>
-            <div class="input-group">Fall (> %): <input type="number" id="p3" value="3"></div>
-            <div class="switch-container">
-                <span style="font-size: 0.8em; font-weight: bold;">Strategie aktiv</span>
-                <label class="ios-switch"><input type="checkbox" id="e3"><span class="ios-slider"></span></label>
+            <div class="switch-header">
+                <h4>📉 Dip-Kauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="e3">
+                    <span class="ios-slider"></span>
+                </label>
             </div>
+            <div class="input-group"><span>Ticks:</span> <input type="number" id="t3" value="8"></div>
+            <div class="input-group"><span>Fall > %:</span> <input type="number" id="p3" value="3"></div>
         </div>
 
         <div class="rule-card sell">
-            <h4>🛡️ Stop-Loss</h4>
-            <div class="input-group">Zeitraum (Ticks): <input type="number" id="t4" value="3"></div>
-            <div class="input-group">Fall (> %): <input type="number" id="p4" value="2"></div>
-            <div class="switch-container">
-                <span style="font-size: 0.8em; font-weight: bold;">Strategie aktiv</span>
-                <label class="ios-switch"><input type="checkbox" id="e4" checked><span class="ios-slider"></span></label>
+            <div class="switch-header">
+                <h4>🛡️ Stop-Loss</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="e4" checked>
+                    <span class="ios-slider"></span>
+                </label>
             </div>
+            <div class="input-group"><span>Ticks:</span> <input type="number" id="t4" value="3"></div>
+            <div class="input-group"><span>Fall > %:</span> <input type="number" id="p4" value="2"></div>
         </div>
     </div>
 
-    <canvas id="chart"></canvas>
+    <button onclick="toggleSimulation()" id="startBtn" class="btn-start">▶ Simulation Starten</button>
 
-    <button onclick="toggleSimulation()" id="startBtn" class="stopped">Simulation Starten</button>
+    <canvas id="chart"></canvas>
 
     <div class="footer-stats">
         <span>Cash: <b id="cash">1000.00</b> €</span>
@@ -90,25 +111,28 @@
         isRunning = !isRunning;
         const btn = document.getElementById('startBtn');
         btn.innerText = isRunning ? "⏹ Simulation Stoppen" : "▶ Simulation Starten";
-        btn.className = isRunning ? "running" : "stopped";
+        // Wir nutzen die im CSS definierte Klasse und toggeln nur den Status-Zustand
+        if(isRunning) {
+            btn.classList.add('running');
+        } else {
+            btn.classList.remove('running');
+        }
         if(isRunning) runStep();
     }
 
     function runStep() {
         if(!isRunning) return;
 
-        // 1. Marktbewegung
         price = +(price * (1 + (Math.random() - 0.48) * 0.02)).toFixed(2);
         history.push(price);
         if(history.length > 50) history.shift();
 
-        // 2. Logik-Prüfung
+        // Dynamische Prüfung der 4 Regeln
         checkRule(1, "BUY", true);  
         checkRule(2, "SELL", true); 
         checkRule(3, "BUY", false); 
         checkRule(4, "SELL", false);
 
-        // Portfolio-Wert
         let total = +(cash + shares * price).toFixed(2);
         portfolioHistory.push(total);
         if(portfolioHistory.length > 50) portfolioHistory.shift();
@@ -146,6 +170,7 @@
 
     function drawChart() {
         const canvas = document.getElementById('chart'), ctx = canvas.getContext('2d');
+        if(!canvas) return;
         canvas.width = canvas.offsetWidth; canvas.height = 220;
         const padding = 40, w = canvas.width - padding * 2, h = canvas.height - padding * 2;
         ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -158,11 +183,9 @@
         const getYPrice = (v) => canvas.height - padding - ((v - minP) / (maxP - minP)) * h;
         const getYPort = (v) => canvas.height - padding - ((v - minPort) / (maxPort - minPort)) * h;
 
-        // Kurs (Gestrichelt)
         ctx.setLineDash([5, 5]); ctx.strokeStyle = "#94a3b8"; ctx.beginPath();
         history.forEach((v, i) => i === 0 ? ctx.moveTo(getX(i), getYPrice(v)) : ctx.lineTo(getX(i), getYPrice(v))); ctx.stroke();
 
-        // Portfolio (Blau)
         ctx.setLineDash([]); ctx.strokeStyle = "#0284c7"; ctx.lineWidth = 3; ctx.beginPath();
         portfolioHistory.forEach((v, i) => i === 0 ? ctx.moveTo(getX(i), getYPort(v)) : ctx.lineTo(getX(i), getYPort(v))); ctx.stroke();
     }
