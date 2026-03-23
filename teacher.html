@@ -5,18 +5,22 @@
     <title>🕹️ Markt-Konsole Pro | Lehrer-Ansicht</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Spezifische Ergänzungen für die Lehrer-Konsole, falls nicht in style.css */
+        .price-large { font-size: 3em; font-weight: bold; color: #006b4d; margin: 20px 0; }
+        .trend-active { background-color: #006b4d !important; color: white !important; border-color: #004d37 !important; }
+        .spike-up { border-left: 5px solid #22c55e !important; }
+        .spike-down { border-left: 5px solid #ef4444 !important; }
+        .reset-zone { margin-top: 40px; padding-top: 20px; border-top: 2px dashed #e2e8f0; }
+    </style>
 </head>
 
-    
 <body>
     <header>
         <div class="logo-container">
-            <a href="home.html">
-                <img src="HSG_Logo_DE_RGB.png" alt="HSG Logo">
-            </a>
+            <a href="home.html"><img src="HSG_Logo_DE_RGB.png" alt="HSG Logo"></a>
         </div>
-        
-        <nav>
+        <nav id="main-nav">
             <a href="statisch.html">Statisch</a>
             <a href="trend.html">Trend</a>
             <a href="konter-trend.html">Konter-Trend</a>
@@ -24,68 +28,82 @@
             <a href="challenge.html">Final Challenge</a>
         </nav>
     </header>
-    <div class="header">
-        <h1>Lehrpersonen Portal: Algorithmen zum Geldverdienen</h1>
-    </div>
 
-    <div class="console-card">
-        <div id="statusInfo" class="status-text">Status: Angehalten</div>
-        <div class="price-display" id="priceLabel">100.00 CHF</div>
+    <div class="container" style="text-align: center;">
+        <h2>Lehrpersonen Portal: Markt-Steuerung</h2>
+        
+        <div class="market-info" style="display: block; padding: 30px;">
+            <div id="statusInfo" style="color: #94a3b8; font-weight: bold; margin-bottom: 10px;">STATUS: ANGEHALTEN</div>
+            <div class="price-large" id="priceLabel">100.00 CHF</div>
+            <button id="masterAction" class="btn-start" onclick="toggleMarket()" style="width: 300px;">▶ Markt Starten</button>
+        </div>
 
-        <button id="masterAction" class="main-btn btn-start" onclick="toggleMarket()">▶ Markt Starten</button>
+        <h3 style="margin-top: 40px;">Markt-Trend beeinflussen</h3>
+        <div class="strategy-grid">
+            <div class="rule-card" id="btn-bull" onclick="setTrend('bull')" style="cursor:pointer;">
+                <span style="font-size: 2em;">🚀</span>
+                <h4>Bull-Markt</h4>
+                <p>Preise steigen tendenziell</p>
+            </div>
+            <div class="rule-card trend-active" id="btn-sideways" onclick="setTrend('sideways')" style="cursor:pointer;">
+                <span style="font-size: 2em;">↔</span>
+                <h4>Neutral</h4>
+                <p>Zufällige Bewegung</p>
+            </div>
+            <div class="rule-card" id="btn-bear" onclick="setTrend('bear')" style="cursor:pointer;">
+                <span style="font-size: 2em;">📉</span>
+                <h4>Bear-Markt</h4>
+                <p>Preise sinken tendenziell</p>
+            </div>
+        </div>
 
-        <div class="control-grid">
-            <button id="btn-bull" class="trend-btn" onclick="setTrend('bull')">🚀 Bull</button>
-            <button id="btn-sideways" class="trend-btn active" onclick="setTrend('sideways')">↔ Neutral</button>
-            <button id="btn-bear" class="trend-btn" onclick="setTrend('bear')">📉 Bear</button>
+        <h3 style="margin-top: 40px;">Events & Volatilität</h3>
+        <div class="strategy-grid">
+            <div class="rule-card spike-up" onclick="triggerSpike(5)" style="cursor:pointer;">
+                <h4>⚡ Up-Spike</h4>
+                <p>Sofort +5% Kurs-Sprung</p>
+            </div>
+            <div class="rule-card">
+                <h4>Schwankung</h4>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px;">
+                    <button class="menu-toggle" style="position:static; display:block; background:#e2e8f0;" onclick="adjustVol(-0.5)">-</button>
+                    <b style="font-size: 1.5em;"><span id="volLabel">1.5</span>%</b>
+                    <button class="menu-toggle" style="position:static; display:block; background:#e2e8f0;" onclick="adjustVol(0.5)">+</button>
+                </div>
+            </div>
+            <div class="rule-card spike-down" onclick="triggerSpike(-5)" style="cursor:pointer;">
+                <h4>💥 Down-Spike</h4>
+                <p>Sofort -5% Kurs-Sturz</p>
+            </div>
+        </div>
+
+        <div class="reset-zone">
+            <div class="rule-card" style="max-width: 500px; margin: 0 auto; border-color: #f59e0b;">
+                <h4 style="color: #d97706;">Challenge Modus</h4>
+                <button id="challengeToggleBtn" class="btn-start" style="background: #d97706; margin: 15px 0;" onclick="toggleChallenge()">
+                    🔓 Challenge freischalten
+                </button>
+                <p style="font-size: 0.8em; color: #64748b;">Ermöglicht Schülern den Beitritt zum Leaderboard</p>
+            </div>
             
-            <button class="trend-btn spike-up" onclick="triggerSpike(5)">⚡ UP-SPIKE (+5%)</button>
-            <div style="display:flex; align-items:center; justify-content:center; color:#64748b; font-size:0.8em;">Manuelle Sprünge</div>
-            <button class="trend-btn spike-down" onclick="triggerSpike(-5)">💥 DOWN-SPIKE (-5%)</button>
+            <button onclick="fullReset()" style="margin-top: 30px; background: none; border: none; color: #ef4444; cursor: pointer; text-decoration: underline;">
+                ⚠️ Alles zurücksetzen (Leaderboard & Markt)
+            </button>
         </div>
-
-        <div class="vol-box">
-            <div class="status-text">Markt-Volatilität (Grundrauschen)</div>
-            <div class="vol-controls">
-                <button class="vol-btn" onclick="adjustVol(-0.5)">-</button>
-                <div class="vol-display"><span id="volLabel">1.5</span>%</div>
-                <button class="vol-btn" onclick="adjustVol(0.5)">+</button>
-            </div>
-        </div>
-
-        <div class="vol-box" style="margin-top: 20px; border-color: #f59e0b;">
-            <div class="status-text" style="color: #f59e0b;">Challenge Modus</div>
-            <div class="vol-controls">
-                <button id="challengeToggleBtn" class="main-btn btn-start" 
-                        style="background: #d97706; margin-bottom: 0;" 
-                        onclick="toggleChallenge()">🔓 Challenge freischalten</button>
-            </div>
-        </div>
-
-        <button class="reset-link" onclick="fullReset()">Leaderboard & Markt zurücksetzen</button>
     </div>
 
     <script>
-        // --- INITIALISIERUNG ---
+        // --- LOGIK BLEIBT GLEICH ---
         const S_URL = 'https://tzatuzzwdvkayowffbxy.supabase.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6YXR1enp3ZHZrYXlvd2ZmYnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTI1NDcsImV4cCI6MjA4ODEyODU0N30.cz5jRfhlOGs9OhFeIfdORPjDljcysI_6db3ny9fLRE4';
         const db = supabase.createClient(S_URL, S_KEY);
         
-        let currentPrice = 100.00;
-        let activeTrend = 'sideways';
-        let volatility = 1.5; // In Prozent
-        let marketActive = false;
-        let tickerId = null;
-
-        let challengeActive = false;
+        let currentPrice = 100.00, activeTrend = 'sideways', volatility = 1.5, marketActive = false, tickerId = null, challengeActive = false;
 
         async function toggleChallenge() {
             challengeActive = !challengeActive;
             const btn = document.getElementById('challengeToggleBtn');
-            
-            // Update in der DB
             await db.from('market').update({ challenge_active: challengeActive }).eq('id', 1);
-            
             if (challengeActive) {
                 btn.innerText = "🔒 Challenge sperren";
                 btn.style.background = "#ef4444";
@@ -100,9 +118,9 @@
             const status = document.getElementById('statusInfo');
             if (!marketActive) {
                 marketActive = true;
-                btn.innerText = "⏸ Markt Stoppen";
-                btn.className = "main-btn btn-stop";
-                status.innerText = "Status: Live (Prozentual)";
+                btn.innerText = "⏹ Markt Stoppen";
+                btn.classList.add('running');
+                status.innerText = "STATUS: LIVE";
                 status.style.color = "#22c55e";
                 tickerId = setInterval(executeTick, 500);
             } else {
@@ -114,28 +132,22 @@
             marketActive = false;
             const btn = document.getElementById('masterAction');
             const status = document.getElementById('statusInfo');
-            if(btn) { btn.innerText = "▶ Markt Starten"; btn.className = "main-btn btn-start"; }
-            if(status) { status.innerText = "Status: Angehalten"; status.style.color = "#94a3b8"; }
+            if(btn) { btn.innerText = "▶ Markt Starten"; btn.classList.remove('running'); }
+            if(status) { status.innerText = "STATUS: ANGEHALTEN"; status.style.color = "#94a3b8"; }
             clearInterval(tickerId);
         }
 
         async function executeTick() {
-            // Prozentuale Berechnung vom AKTUELLEN Preis
             let changePercent = (Math.random() - 0.5) * (volatility / 100);
-
-            if (activeTrend === 'bull') changePercent += 0.015; // +1.5% Trend
-            if (activeTrend === 'bear') changePercent -= 0.018; // -1.8% Trend
-
-            let delta = currentPrice * changePercent;
-            currentPrice = Math.max(0.5, +(currentPrice + delta).toFixed(2));
-            
+            if (activeTrend === 'bull') changePercent += 0.005; 
+            if (activeTrend === 'bear') changePercent -= 0.006; 
+            currentPrice = Math.max(0.5, +(currentPrice * (1 + changePercent)).toFixed(2));
             updateDisplayAndDB();
         }
 
         async function triggerSpike(percent) {
             if (!marketActive) return alert("Starte erst den Markt!");
-            let spikeDelta = currentPrice * (percent / 100);
-            currentPrice = Math.max(0.5, +(currentPrice + spikeDelta).toFixed(2));
+            currentPrice = Math.max(0.5, +(currentPrice * (1 + percent/100)).toFixed(2));
             updateDisplayAndDB();
         }
 
@@ -145,31 +157,27 @@
         }
 
         async function updateDisplayAndDB() {
-            document.getElementById('priceLabel').innerText = currentPrice.toFixed(2);
+            document.getElementById('priceLabel').innerText = currentPrice.toFixed(2) + " CHF";
             await db.from('market').update({ price: currentPrice }).eq('id', 1);
         }
 
         function setTrend(t) {
             activeTrend = t;
-            document.querySelectorAll('.trend-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + t).classList.add('active');
+            document.querySelectorAll('.rule-card').forEach(b => b.classList.remove('trend-active'));
+            document.getElementById('btn-' + t).classList.add('trend-active');
         }
 
         async function fullReset() {
-            if (!confirm("Reset durchführen? (Preis auf -1 für Schüler-Reset)")) return;
+            if (!confirm("Reset durchführen?")) return;
             stopMarket();
-            // Signal für Schüler-Reset senden
             await db.from('market').update({ price: -1 }).eq('id', 1);
             await db.from('leaderboard').delete().neq('name', '---');
-            
             setTimeout(async () => {
                 currentPrice = 100.00;
                 await db.from('market').update({ price: 100.00 }).eq('id', 1);
-                document.getElementById('priceLabel').innerText = "100.00";
+                document.getElementById('priceLabel').innerText = "100.00 CHF";
             }, 2000);
         }
     </script>
 </body>
 </html>
-
-
