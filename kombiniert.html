@@ -50,7 +50,7 @@
             <a href="trend.html">Trend</a>
             <a href="konter-trend.html">Konter-Trend</a>
             <a href="allin.html">All-in</a>
-            <a href="kombiniert.html"class="active">Kombiniert</a>
+            <a href="kombiniert.html" class="active">Kombiniert</a>
             <a href="challenge.html">Final Challenge</a>
         </nav>
     </header>
@@ -211,6 +211,11 @@
         }
     }
 
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+    
     function updateUI(total) {
         document.getElementById('price').innerText = price.toFixed(2) + " CHF";
         document.getElementById('cash').innerText = cash.toFixed(2);
