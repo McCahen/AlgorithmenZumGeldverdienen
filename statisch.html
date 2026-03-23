@@ -116,7 +116,7 @@
         let change = (Math.random() - 0.5) * 4;
         price = Math.max(10, +(price + change).toFixed(2));
         history.push(price);
-        if(history.length > 50) history.shift();
+        if(history.length > 100) history.shift();
 
         // 2. KAUF LOGIK
         if (document.getElementById('buy_active').checked) {
