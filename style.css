@@ -1,3 +1,14 @@
+#chart {
+    display: block;
+    width: 100%;
+    height: 250px; /* Die exakte Höhe aus deinem Skript */
+    background-color: #f8fafc; /* Ein ganz leichtes Grau als Platzhalter-Fläche */
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px solid #f1f5f9; /* Dezenter Rahmen */
+}
+
+
 /* --- BASIS STYLING (Hintergrund Weiß) --- */
 body { 
     font-family: 'Segoe UI', sans-serif; 
