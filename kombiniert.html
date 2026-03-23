@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="charts.js"></script>
 </head> 
-<body>
 
 <body>
     <header>
@@ -106,6 +105,12 @@
     let price = 100, cash = 1000, shares = 0, isRunning = false;
     let history = [100], portfolioHistory = [1000];
 
+    // --- NAVIGATION FIX (Hinzugefügt) ---
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+    
     function toggleSimulation() {
         isRunning = !isRunning;
         const btn = document.getElementById('startBtn');
@@ -142,8 +147,9 @@
     }
 
     function checkRule(id, action, positiveDirection) {
-        if (!document.getElementById('e' + id).checked) return;
-        let t = parseInt(document.getElementById('t' + id).value);
+        // Sicherstellen, dass das Element existiert, bevor wir .checked prüfen
+        const toggle = document.getElementById('e' + id);
+        if (!toggle || !toggle.checked) return;        let t = parseInt(document.getElementById('t' + id).value);
         let p = parseFloat(document.getElementById('p' + id).value) / 100;
 
         if (history.length > t) {
