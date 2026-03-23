@@ -51,3 +51,15 @@ nav a:hover, nav a.active {
     padding: 20px; 
     /* Schatten entfernt für flaches Design */
 }
+
+/* --- ZUSATZ FÜR KOMBI- & CHALLENGE-SEITE --- */
+.switch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-start.running { 
+    background: #ef4444 !important; 
+}
