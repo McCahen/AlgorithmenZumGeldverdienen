@@ -190,7 +190,12 @@
         }
         setTimeout(runLoop, 500);
     }
-
+    
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+    
     function checkRule(id, action) {
         const toggle = document.getElementById('e' + id);
         if (!toggle || !toggle.checked) return;
