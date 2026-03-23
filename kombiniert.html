@@ -68,7 +68,7 @@
     <div class="strategy-grid">
         
         <div class="rule-card buy">
-            <span class="card-tag tag-single">Einzel-Trade</span>
+            <span class="card-tag tag-single">Einzel-Trade: Kauf</span>
             <div class="switch-header">
                 <h4>📈 Trend-Kauf</h4>
                 <label class="ios-switch"><input type="checkbox" id="e1" checked><span class="ios-slider"></span></label>
@@ -77,18 +77,8 @@
             <div class="input-group"><span>Anstieg > %:</span> <input type="number" id="p1" value="2.0"></div>
         </div>
 
-        <div class="rule-card sell">
-            <span class="card-tag tag-single">Einzel-Trade</span>
-            <div class="switch-header">
-                <h4>💰 Gewinnmitnahme</h4>
-                <label class="ios-switch"><input type="checkbox" id="e2"><span class="ios-slider"></span></label>
-            </div>
-            <div class="input-group"><span>Ticks:</span> <input type="number" id="t2" value="10"></div>
-            <div class="input-group"><span>Anstieg > %:</span> <input type="number" id="p2" value="5.0"></div>
-        </div>
-
         <div class="rule-card buy">
-            <span class="card-tag tag-single">Einzel-Trade</span>
+            <span class="card-tag tag-single">Einzel-Trade: Kauf</span>
             <div class="switch-header">
                 <h4>📉 Tief einkaufen</h4>
                 <label class="ios-switch"><input type="checkbox" id="e5"><span class="ios-slider"></span></label>
@@ -98,7 +88,17 @@
         </div>
 
         <div class="rule-card sell">
-            <span class="card-tag tag-single">Einzel-Trade</span>
+            <span class="card-tag tag-single">Einzel-Trade: Verkauf</span>
+            <div class="switch-header">
+                <h4>💰 Gewinnmitnahme</h4>
+                <label class="ios-switch"><input type="checkbox" id="e2"><span class="ios-slider"></span></label>
+            </div>
+            <div class="input-group"><span>Ticks:</span> <input type="number" id="t2" value="10"></div>
+            <div class="input-group"><span>Anstieg > %:</span> <input type="number" id="p2" value="5.0"></div>
+        </div>
+        
+        <div class="rule-card sell">
+            <span class="card-tag tag-single">Einzel-Trade: Verkauf</span>
             <div class="switch-header">
                 <h4>🛡️ Risiko abbauen</h4>
                 <label class="ios-switch"><input type="checkbox" id="e6" checked><span class="ios-slider"></span></label>
@@ -108,7 +108,7 @@
         </div>
 
         <div class="rule-card buy allin">
-            <span class="card-tag tag-allin">🚀 ALL-IN</span>
+            <span class="card-tag tag-allin">🚀 ALL-IN: Kauf</span>
             <div class="switch-header">
                 <h4>🚀 All-in Einstieg</h4>
                 <label class="ios-switch"><input type="checkbox" id="e3"><span class="ios-slider"></span></label>
@@ -118,7 +118,7 @@
         </div>
 
         <div class="rule-card sell allin">
-            <span class="card-tag tag-allin">🚀 ALL-IN</span>
+            <span class="card-tag tag-allin">🚀 ALL-IN: Verkauf</span>
             <div class="switch-header">
                 <h4>🛑 Not-Aus (Exit)</h4>
                 <label class="ios-switch"><input type="checkbox" id="e4" checked><span class="ios-slider"></span></label>
