@@ -167,6 +167,11 @@
         setTimeout(runStep, 500);
     }
 
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+    
     function updateUI(total) {
         document.getElementById('price').innerText = price.toFixed(2) + " CHF";
         document.getElementById('cash').innerText = cash.toFixed(2);
