@@ -22,7 +22,7 @@
     
         <nav id="main-nav">
             <a href="statisch.html">Statisch</a>
-            <a href="trend.html">Trend</a>
+            <a href="trend.html" class="active">Trend</a>
             <a href="konter-trend.html">Konter-Trend</a>
             <a href="kombiniert.html">Kombiniert</a>
             <a href="challenge.html">Final Challenge</a>
@@ -33,21 +33,59 @@
     <h2>📈 Trend-Folge: Auf der Welle reiten</h2>
     
     <div class="market-info">
-        <div>Aktueller Kurs <strong id="price">100.00</strong></div>
-        <div>Depotwert <strong id="total" style="color: #0284c7;">1000.00</strong></div>
-    </div>
-
-    <div class="controls">
-        <h3>Strategie-Logik:</h3>
-        <p>
-            Beobachte die letzten <input type="number" id="ticks" value="10"> Ticks.<br>
-            Wenn der Kurs in dieser Zeit um mehr als <input type="number" id="percent_buy" value="2"> % <b>steigt</b>: <b style="color:#0284c7">KAUFEN</b> (1 Stück).<br>
-            Wenn der Kurs in dieser Zeit um mehr als <input type="number" id="percent_sell" value="2"> % <b>fällt</b>: <b style="color:#ef4444">VERKAUFEN</b> (1 Stück).
-        </p>
-        <button onclick="toggleSimulation()" id="startBtn">Simulation Starten</button>
+        <div>Aktueller Kurs <strong id="price">100.00 €</strong></div>
+        <div>Depotwert <strong id="total" style="color: #006b4d;">1000.00 €</strong></div>
     </div>
 
     <canvas id="chart"></canvas>
+
+    <div class="strategy-grid">
+        <div class="rule-card buy">
+            <div class="switch-header">
+                <h4>🛒 Trend-Kauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="buy_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Zeitraum (Ticks):</span>
+                <input type="number" id="ticks" value="10">
+            </div>
+            <div class="input-group">
+                <span>Anstieg > %:</span>
+                <input type="number" id="percent_buy" value="2">
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                Kaufe, wenn der Kurs Schwung nach oben hat (Momentum).
+            </p>
+        </div>
+
+        <div class="rule-card sell">
+            <div class="switch-header">
+                <h4>💰 Trend-Verkauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="sell_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Zeitraum (Ticks):</span>
+                <input type="number" id="ticks_sell" value="10">
+            </div>
+            <div class="input-group">
+                <span>Fall > %:</span>
+                <input type="number" id="percent_sell" value="2">
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                Verkaufe, sobald der Trend bricht, um Gewinne zu sichern.
+            </p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <button onclick="toggleSimulation()" id="startBtn" class="btn-start">▶ Simulation Starten</button>
+    </div>
 
     <div class="footer-stats">
         <span>Cash: <b id="cash">1000.00</b> €</span>
@@ -60,54 +98,63 @@
     let price = 100, cash = 1000, shares = 0, isRunning = false;
     let history = [100], portfolioHistory = [1000];
 
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+
     function toggleSimulation() {
         isRunning = !isRunning;
         const btn = document.getElementById('startBtn');
         
         if (isRunning) {
             btn.innerText = "⏹ Simulation Stoppen";
-            btn.classList.add('running'); // CSS macht ihn rot
+            btn.classList.add('running');
             runStep();
         } else {
             btn.innerText = "▶ Simulation Starten";
-            btn.classList.remove('running'); // CSS macht ihn wieder grün
+            btn.classList.remove('running');
         }
     }
 
     function runStep() {
         if(!isRunning) return;
 
-        // 1. Marktbewegung (Zufall)
+        // 1. Marktbewegung
         let change = (Math.random() - 0.5) * 4;
         price = Math.max(10, +(price + change).toFixed(2));
         history.push(price);
-        if(history.length > 50) history.shift();
+        if(history.length > 100) history.shift();
 
-        // 2. Portfolio & UI
-        let currentTotal = cash + (shares * price);
-        portfolioHistory.push(currentTotal);
-        if(portfolioHistory.length > 50) portfolioHistory.shift();
-
-        // 3. TREND-FOLGE LOGIK
-        let t = parseInt(document.getElementById('ticks').value);
-        let p_buy = parseFloat(document.getElementById('percent_buy').value) / 100;
-        let p_sell = parseFloat(document.getElementById('percent_sell').value) / 100;
-
-        if (history.length > t) {
-            let oldPrice = history[history.length - 1 - t];
-            let ratio = (price - oldPrice) / oldPrice;
-
-            // TREND-FOLGE: Kaufen wenn es steigt (Momentum nutzen)
-            if (ratio >= p_buy && cash >= price) {
-                cash -= price;
-                shares++;
-            } 
-            // TREND-FOLGE: Verkaufen wenn es fällt (Stop-Loss / Trendwende)
-            else if (ratio <= -p_sell && shares > 0) {
-                cash += price;
-                shares--;
+        // 2. KAUF LOGIK
+        if (document.getElementById('buy_active').checked) {
+            let tBuy = parseInt(document.getElementById('ticks').value);
+            let pBuy = parseFloat(document.getElementById('percent_buy').value) / 100;
+            if (history.length > tBuy) {
+                let oldPriceBuy = history[history.length - 1 - tBuy];
+                let ratioBuy = (price - oldPriceBuy) / oldPriceBuy;
+                if (ratioBuy >= pBuy && cash >= price) {
+                    cash -= price; shares++;
+                }
             }
         }
+
+        // 3. VERKAUF LOGIK
+        if (document.getElementById('sell_active').checked) {
+            let tSell = parseInt(document.getElementById('ticks_sell').value);
+            let pSell = parseFloat(document.getElementById('percent_sell').value) / 100;
+            if (history.length > tSell) {
+                let oldPriceSell = history[history.length - 1 - tSell];
+                let ratioSell = (price - oldPriceSell) / oldPriceSell;
+                if (ratioSell <= -pSell && shares > 0) {
+                    cash += price; shares--;
+                }
+            }
+        }
+
+        let currentTotal = +(cash + (shares * price)).toFixed(2);
+        portfolioHistory.push(currentTotal);
+        if(portfolioHistory.length > 50) portfolioHistory.shift();
 
         updateUI(currentTotal);
         setTimeout(runStep, 500);
@@ -121,6 +168,8 @@
         document.getElementById('total').innerText = total.toFixed(2) + " €";
         drawChart();
     }
+
+    drawChart();
 </script>
 </body>
 </html>
