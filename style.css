@@ -63,3 +63,30 @@ nav a:hover, nav a.active {
 .btn-start.running { 
     background: #ef4444 !important; 
 }
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+.leaderboard-table th {
+    text-align: left;
+    padding: 15px;
+    background: #006b4d; /* HSG Grün */
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.leaderboard-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.leaderboard-table tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.rank-1 { font-weight: bold; color: #b59410; } /* Gold-Effekt für Platz 1 */
+.score-cell { font-family: 'Courier New', monospace; font-weight: bold; text-align: right; }
