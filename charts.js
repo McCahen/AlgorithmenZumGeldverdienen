@@ -38,7 +38,7 @@ function drawChart() {
         const yPos = getY(val);
         
         // Wert links anzeigen
-        ctx.fillText(val.toFixed(2) + " €", padding.left - 10, yPos + 4);
+        ctx.fillText(val.toFixed(2) + " CHF", padding.left - 10, yPos + 4);
         
         // Horizontale Linie
         ctx.beginPath();
