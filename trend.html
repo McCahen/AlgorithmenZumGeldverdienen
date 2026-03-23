@@ -57,9 +57,15 @@
     function toggleSimulation() {
         isRunning = !isRunning;
         const btn = document.getElementById('startBtn');
-        btn.innerText = isRunning ? "⏹ Simulation Stoppen" : "▶ Simulation Starten";
-        btn.style.background = isRunning ? "#ef4444" : "#0284c7";
-        if(isRunning) runStep();
+        
+        if (isRunning) {
+            btn.innerText = "⏹ Simulation Stoppen";
+            btn.classList.add('running'); // CSS macht ihn rot
+            runStep();
+        } else {
+            btn.innerText = "▶ Simulation Starten";
+            btn.classList.remove('running'); // CSS macht ihn wieder grün
+        }
     }
 
     function runStep() {
