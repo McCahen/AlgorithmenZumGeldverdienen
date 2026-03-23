@@ -2,24 +2,34 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Algo-Workshop: Challenge</title>
+    <title>Algo-Workshop: Final Challenge</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
     <script src="charts.js"></script>
+    <style>
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .rule-card.allin { border-left: 5px solid #006b4d; background: #f0fdf4; }
+        .card-tag { 
+            font-size: 0.65em; font-weight: bold; text-transform: uppercase; 
+            padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; display: inline-block;
+        }
+        .tag-single { background: #e2e8f0; color: #475569; }
+        .tag-allin { background: #006b4d; color: white; }
+    </style>
 </head>
 <body>
     <header>
         <div class="logo-container">
-            <a href="home.html">
-                <img src="HSG_Logo_DE_RGB.png" alt="HSG Logo">
-            </a>
+            <a href="home.html"><img src="HSG_Logo_DE_RGB.png" alt="HSG Logo"></a>
         </div>
         <button class="menu-toggle" onclick="toggleMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </button>
-    
         <nav id="main-nav">
             <a href="statisch.html">Statisch</a>
             <a href="trend.html">Trend</a>
@@ -29,6 +39,7 @@
             <a href="challenge.html" class="active">Final Challenge</a>
         </nav>
     </header>
+
 <div class="container">
     <div id="setup-screen" style="text-align: center; padding: 40px 0;">
         <div style="margin-bottom: 20px; font-size: 0.8em; color: #64748b;">
@@ -49,39 +60,58 @@
     <div id="trading-screen" style="display: none;">
         <h2>🏆 Challenge: Wer gewinnt?</h2>
         <div class="market-info">
-            <div>Aktueller Kurs: <strong id="price">...</strong></div>
-            <div>Depotwert: <strong id="total" style="color: #006b4d;">1000.00</strong></div>
+            <div>Kurs: <strong id="price">...</strong></div>
+            <div>Depot: <strong id="total" style="color: #006b4d;">1000.00</strong></div>
             <div>Name: <strong id="player-label" style="color:#64748b;">-</strong></div>
         </div>
 
         <div class="strategy-grid">
             <div class="rule-card buy">
+                <span class="card-tag tag-single">Einzel-Trade</span>
                 <h4>📈 Trend-Kauf</h4>
                 <div class="input-group">Ticks: <input type="number" id="t1" value="5"></div>
-                <div class="input-group">Anstieg > %: <input type="number" id="p1" value="2"></div>
-                <div class="input-group">Stück: <input type="number" id="a1" value="1"></div>
-                <div class="input-group"><span>Strategie aktiv</span> <label class="ios-switch"><input type="checkbox" id="e1"><span class="ios-slider"></span></label></div>
+                <div class="input-group">Anstieg > %: <input type="number" id="p1" value="2.0"></div>
+                <div class="input-group">Aktiv <label class="ios-switch"><input type="checkbox" id="e1"><span class="ios-slider"></span></label></div>
             </div>
+
             <div class="rule-card sell">
-                <h4>💰 Gewinnmitnahme</h4>
+                <span class="card-tag tag-single">Einzel-Trade</span>
+                <h4>💰 Teil-Verkauf</h4>
                 <div class="input-group">Ticks: <input type="number" id="t2" value="10"></div>
-                <div class="input-group">Anstieg > %: <input type="number" id="p2" value="5"></div>
-                <div class="input-group">Stück: <input type="number" id="a2" value="1"></div>
-                <div class="input-group"><span>Strategie aktiv</span> <label class="ios-switch"><input type="checkbox" id="e2"><span class="ios-slider"></span></label></div>
+                <div class="input-group">Anstieg > %: <input type="number" id="p2" value="5.0"></div>
+                <div class="input-group">Aktiv <label class="ios-switch"><input type="checkbox" id="e2"><span class="ios-slider"></span></label></div>
             </div>
-            <div class="rule-card buy">
-                <h4>📉 Tief einkaufen</h4>
-                <div class="input-group">Ticks: <input type="number" id="t3" value="8"></div>
-                <div class="input-group">Fall > %: <input type="number" id="p3" value="3"></div>
-                <div class="input-group">Stück: <input type="number" id="a3" value="1"></div>
-                <div class="input-group"><span>Strategie aktiv</span> <label class="ios-switch"><input type="checkbox" id="e3"><span class="ios-slider"></span></label></div>
+
+            <div class="rule-card buy allin">
+                <span class="card-tag tag-allin">🚀 ALL-IN</span>
+                <h4>🚀 Momentum Entry</h4>
+                <div class="input-group">Ticks: <input type="number" id="t3" value="3"></div>
+                <div class="input-group">Anstieg > %: <input type="number" id="p3" value="1.5"></div>
+                <div class="input-group">Aktiv <label class="ios-switch"><input type="checkbox" id="e3"><span class="ios-slider"></span></label></div>
             </div>
-            <div class="rule-card sell">
-                <h4>🛡️ Risiko-Abbauen</h4>
+
+            <div class="rule-card sell allin">
+                <span class="card-tag tag-allin">🚀 ALL-IN</span>
+                <h4>🛑 Not-Aus (Exit)</h4>
                 <div class="input-group">Ticks: <input type="number" id="t4" value="3"></div>
-                <div class="input-group">Fall > %: <input type="number" id="p4" value="2"></div>
-                <div class="input-group">Stück: <input type="number" id="a4" value="1"></div>
-                <div class="input-group"><span>Strategie aktiv</span> <label class="ios-switch"><input type="checkbox" id="e4"><span class="ios-slider"></span></label></div>
+                <div class="input-group">Abstieg > %: <input type="number" id="p4" value="2.5"></div>
+                <div class="input-group">Aktiv <label class="ios-switch"><input type="checkbox" id="e4" checked><span class="ios-slider"></span></label></div>
+            </div>
+
+            <div class="rule-card buy">
+                <span class="card-tag tag-single">Einzel-Trade</span>
+                <h4>📉 Tief einkaufen</h4>
+                <div class="input-group">Ticks: <input type="number" id="t5" value="8"></div>
+                <div class="input-group">Abstieg > %: <input type="number" id="p5" value="3.0"></div>
+                <div class="input-group">Aktiv <label class="ios-switch"><input type="checkbox" id="e5"><span class="ios-slider"></span></label></div>
+            </div>
+
+            <div class="rule-card sell">
+                <span class="card-tag tag-single">Einzel-Trade</span>
+                <h4>🛡️ Risiko-Schutz</h4>
+                <div class="input-group">Ticks: <input type="number" id="t6" value="5"></div>
+                <div class="input-group">Abstieg > %: <input type="number" id="p6" value="1.0"></div>
+                <div class="input-group">Aktiv <label class="ios-switch"><input type="checkbox" id="e6" checked><span class="ios-slider"></span></label></div>
             </div>
         </div>
 
@@ -89,9 +119,8 @@
         <div id="log-msg">Warte auf Marktdaten...</div>
 
         <div class="footer-stats">
-            <span>Cash: <b id="cash">1000.00</b> CHF</span>
-            <span>Wert der Aktien: <b id="sharesValue">0.00</b> CHF</span>
-            <span>Besitz: <b id="shares">0</b> Stück</span>
+            <span>Cash: <b id="cash">1000.00</b></span>
+            <span>Besitz: <b id="shares">0</b> Stk.</span>
         </div>
     </div>
 </div>
@@ -112,29 +141,17 @@
         try {
             const { data, error } = await tradingDb.from('market').select('challenge_active').eq('id', 1);
             if (error) throw error;
-
             if (data && data.length > 0) {
-                const active = data[0].challenge_active;
-                const isActive = (active === true || active === 'true' || active === 'True');
-
+                const isActive = (data[0].challenge_active === true || data[0].challenge_active === 'true');
                 if (isActive) {
-                    dot.style.background = "#10b981";
-                    statusTxt.innerText = "Challenge gestartet!";
-                    btn.disabled = false;
-                    btn.innerText = "🚀 Börse betreten";
-                    btn.style.background = "#10b981";
+                    dot.style.background = "#10b981"; statusTxt.innerText = "Challenge gestartet!";
+                    btn.disabled = false; btn.innerText = "🚀 Börse betreten"; btn.style.background = "#10b981";
                 } else {
-                    dot.style.background = "#f59e0b";
-                    statusTxt.innerText = "Verbunden (Warte auf Start)";
-                    btn.disabled = true;
-                    btn.innerText = "🔒 Warte auf Freigabe...";
-                    btn.style.background = "#cbd5e1";
+                    dot.style.background = "#f59e0b"; statusTxt.innerText = "Verbunden (Warte auf Start)";
+                    btn.disabled = true; btn.innerText = "🔒 Warte auf Freigabe..."; btn.style.background = "#cbd5e1";
                 }
             }
-        } catch(e) {
-            dot.style.background = "red";
-            statusTxt.innerText = "Verbindungsfehler";
-        }
+        } catch(e) { dot.style.background = "red"; statusTxt.innerText = "Verbindungsfehler"; }
     }
 
     async function startTrading() {
@@ -149,92 +166,63 @@
     async function runLoop() {
         try {
             const { data, error } = await tradingDb.from('market').select('price').eq('id', 1).single();
-            
             if (error) throw error;
-    
-            // WICHTIG: Nur fortfahren, wenn der Preis eine echte, positive Zahl ist
             if (data && data.price > 0) { 
                 price = data.price;
                 history.push(price);
-                if(history.length > 50) history.shift();
-    
-                // Handelsregeln ausführen
-                checkRule(1, "BUY"); checkRule(2, "SELL"); 
-                checkRule(3, "BUY"); checkRule(4, "SELL");
-    
-                // Gesamtwert berechnen
+                if(history.length > 100) history.shift();
+
+                // Die 6 Regeln prüfen
+                checkRule(1, "BUY",  true,  false); // Trend Single
+                checkRule(2, "SELL", true,  false); // Profit Single
+                checkRule(3, "BUY",  true,  true);  // Momentum ALLIN
+                checkRule(4, "SELL", false, true);  // Exit ALLIN
+                checkRule(5, "BUY",  false, false); // Dip Single
+                checkRule(6, "SELL", false, false); // Risk Single
+
                 let totalValue = +(cash + shares * price).toFixed(2);
                 portfolioHistory.push(totalValue);
                 if(portfolioHistory.length > 50) portfolioHistory.shift();
-    
-                // NUR SENDEN, WENN EIN NAME EXISTIERT
+
                 if (playerName) {
-                    const { error: upsertError } = await tradingDb
-                        .from('leaderboard')
-                        .upsert({ name: playerName, score: totalValue }, { onConflict: 'name' }); // 'onConflict' stellt sicher, dass überschrieben wird
-                    
-                    if (upsertError) console.error("Leaderboard Update Fehler:", upsertError.message);
+                    await tradingDb.from('leaderboard').upsert({ name: playerName, score: totalValue }, { onConflict: 'name' });
                 }
-    
                 updateUI(totalValue);
             } else if (data && data.price === -1) {
-                // Dies ist der ABSICHTLICHE Reset durch den Lehrer-Button ganz unten
-                console.log("Admin-Reset erkannt. Setze Konto zurück.");
-                cash = 1000;
-                shares = 0;
-                history = [];
-                portfolioHistory = [];
-                updateUI(1000);
+                location.reload(); // Einfacher Reload bei Admin-Reset
             }
-        } catch (e) { 
-            console.error("Loop Error:", e); 
-        }
+        } catch (e) { console.error("Loop Error:", e); }
         setTimeout(runLoop, 500);
     }
     
-    function toggleMenu() {
-        const nav = document.getElementById('main-nav');
-        nav.classList.toggle('active');
-    }
+    function toggleMenu() { document.getElementById('main-nav').classList.toggle('active'); }
     
-    function checkRule(id, action) {
+    function checkRule(id, action, positiveDir, isAllIn) {
         const toggle = document.getElementById('e' + id);
         if (!toggle || !toggle.checked) return;
         
         let t = parseInt(document.getElementById('t' + id).value);
         let p = parseFloat(document.getElementById('p' + id).value) / 100;
-        let amount = parseInt(document.getElementById('a' + id).value);
         
         if (history.length > t) {
             let oldPrice = history[history.length - 1 - t];
             let change = (price - oldPrice) / oldPrice;
-    
-            // Logik basierend auf der Aktion
-            if (id === 1 && change >= p) executeTrade("BUY", amount);   // Trend-Kauf
-            if (id === 2 && change >= p) executeTrade("SELL", amount);  // Take-Profit
-            if (id === 3 && change <= -p) executeTrade("BUY", amount);  // Dip-Kauf
-            if (id === 4 && change <= -p) executeTrade("SELL", amount); // Stop-Loss
+
+            if (positiveDir && change >= p) executeTrade(action, isAllIn);
+            else if (!positiveDir && change <= -p) executeTrade(action, isAllIn);
         }
     }
 
-    function executeTrade(action, amount) {
+    function executeTrade(action, isAllIn) {
         const log = document.getElementById('log-msg');
-        if (action === "BUY") {
-            if (cash >= amount * price) {
-                cash -= amount * price; shares += amount;
-                log.innerText = `✅ KAUF: ${amount} Stk`;
-            } else {
-                log.innerText = `❌ KAUF fehlgeschlagen: Zu wenig Cash!`;
-                log.style.color = "#ef4444";
-            }
-        } else if (action === "SELL") {
-            if (shares >= amount) {
-                cash += amount * price; shares -= amount;
-                log.innerText = `💰 VERKAUF: ${amount} Stk`;
-            } else {
-                log.innerText = `❌ VERKAUF fehlgeschlagen: Keine Aktien!`;
-                log.style.color = "#ef4444";
-            }
+        if (action === "BUY" && cash >= price) {
+            let amount = isAllIn ? Math.floor(cash / price) : 1;
+            cash -= amount * price; shares += amount;
+            log.innerText = `✅ KAUF: ${amount} Stk`;
+        } else if (action === "SELL" && shares > 0) {
+            let amount = isAllIn ? shares : 1;
+            cash += amount * price; shares -= amount;
+            log.innerText = `💰 VERKAUF: ${amount} Stk`;
         }
     }
 
@@ -242,12 +230,10 @@
         document.getElementById('price').innerText = price.toFixed(2) + " CHF";
         document.getElementById('cash').innerText = cash.toFixed(2);
         document.getElementById('shares').innerText = shares;
-        document.getElementById('sharesValue').innerText = (shares * price).toFixed(2);
         document.getElementById('total').innerText = total.toFixed(2) + " CHF";
-        drawChart();
+        if (typeof drawChart === "function") drawChart();
     }
 
-    // Intervalle starten
     checkChallengeStatus();
     setInterval(checkChallengeStatus, 2000);
 </script>
