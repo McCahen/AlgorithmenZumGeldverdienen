@@ -14,24 +14,47 @@
     <a href="konter-trend.html">📉 Konter-Trend</a>
     <a href="kombiniert.html">🧬 Kombiniert</a>
 </nav>
-</br>
 
 <div class="container">
-    <h2>🚀 Konter-Trend: Gewinn mitnehmen & Dip-Kaufen</h2>
+    <h2>🚀 Konter-Trend: Dip-Kauf & Gewinnmitnahme</h2>
     
     <div class="market-info">
         <div>Aktueller Kurs <strong id="price">100.00</strong></div>
+        <div>Beobachtungszeitraum <strong><span id="displayTicks">10</span> Ticks</strong></div>
         <div>Depotwert <strong id="total" style="color: #0284c7;">1000.00</strong></div>
     </div>
 
-    <div class="controls">
-        <p>
-            Beobachte die letzten <input type="number" id="ticks" value="10"> Ticks.<br>
-            Wenn der Kurs in dieser Zeit um mehr als <input type="number" id="percent" value="2"> % sinkt: <b style="color:#0284c7">KAUFEN</b> (1 Stück).<br>
-            Wenn der Kurs in dieser Zeit um mehr als <input type="number" id="percent_sell" value="2"> % steigt: <b style="color:#ef4444">VERKAUFEN</b> (1 Stück).
-        </p>
-        <button onclick="toggleSimulation()" id="startBtn">Simulation Starten</button>
+    <div class="strategy-grid">
+        <div class="rule-card buy">
+            <h4>🛒 Kauf-Bedingung</h4>
+            <div class="input-group">
+                <span>Zeitraum (Ticks):</span>
+                <input type="number" id="ticks" value="10" oninput="document.getElementById('displayTicks').innerText=this.value">
+            </div>
+            <div class="input-group">
+                <span>Kursfall ></span>
+                <span><input type="number" id="percent" value="2"> %</span>
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                "Kaufe den Dip": Wenn der Kurs schnell sinkt, erwarten wir eine Erholung.
+            </p>
+        </div>
+
+        <div class="rule-card sell">
+            <h4>💰 Verkauf-Bedingung</h4>
+            <div class="input-group" style="visibility: hidden;"> <span>Zeitraum:</span><span>-</span>
+            </div>
+            <div class="input-group">
+                <span>Kursanstieg ></span>
+                <span><input type="number" id="percent_sell" value="2"> %</span>
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                "Gewinne sichern": Wenn der Kurs schnell steigt, verkaufen wir vor dem Rücksetzer.
+            </p>
+        </div>
     </div>
+
+    <button onclick="toggleSimulation()" id="startBtn" class="btn-start">▶ Simulation Starten</button>
 
     <canvas id="chart"></canvas>
 
@@ -43,38 +66,28 @@
 </div>
 
 <script>
-    // --- VARIABLEN ---
-    let price = 100;
-    let cash = 1000;
-    let shares = 0;
-    let isRunning = false;
-    let history = [100];
-    let portfolioHistory = [1000];
-
-    // --- LOGIK ---
+    let price = 100, cash = 1000, shares = 0, isRunning = false;
+    let history = [100], portfolioHistory = [1000];
 
     function toggleSimulation() {
         isRunning = !isRunning;
-        document.getElementById('startBtn').innerText = isRunning ? "⏹ Simulation Stoppen" : "▶ Simulation Starten";
-        document.getElementById('startBtn').style.background = isRunning ? "#ef4444" : "#10b981";
+        const btn = document.getElementById('startBtn');
+        btn.innerText = isRunning ? "⏹ Simulation Stoppen" : "▶ Simulation Starten";
+        // Dank CSS-Klasse btn-start müssen wir hier nur die Hintergrundfarbe bei Stop ändern:
+        btn.style.background = isRunning ? "#ef4444" : "#10b981";
         if(isRunning) runStep();
     }
 
     function runStep() {
         if(!isRunning) return;
 
-        // 1. Marktbewegung
+        // 1. Markt simuliere
         let change = (Math.random() - 0.5) * 4;
         price = Math.max(10, +(price + change).toFixed(2));
         history.push(price);
         if(history.length > 50) history.shift();
 
-        // 2. Portfolio berechnen
-        let currentTotal = cash + (shares * price);
-        portfolioHistory.push(currentTotal);
-        if(portfolioHistory.length > 50) portfolioHistory.shift();
-
-        // 3. Strategie-Check
+        // 2. Strategie auslesen
         let t = parseInt(document.getElementById('ticks').value);
         let p_buy = parseFloat(document.getElementById('percent').value) / 100;
         let p_sell = parseFloat(document.getElementById('percent_sell').value) / 100;
@@ -83,17 +96,16 @@
             let oldPrice = history[history.length - 1 - t];
             let ratio = (price - oldPrice) / oldPrice;
 
-            // Konter-Trend: Kaufen bei Kursfall
             if (ratio <= -p_buy && cash >= price) {
-                cash -= price;
-                shares++;
-            } 
-            // Konter-Trend: Verkaufen bei Kursanstieg (Gewinnmitnahme)
-            else if (ratio >= p_sell && shares > 0) {
-                cash += price;
-                shares--;
+                cash -= price; shares++;
+            } else if (ratio >= p_sell && shares > 0) {
+                cash += price; shares--;
             }
         }
+
+        let currentTotal = +(cash + (shares * price)).toFixed(2);
+        portfolioHistory.push(currentTotal);
+        if(portfolioHistory.length > 50) portfolioHistory.shift();
 
         updateUI(currentTotal);
         setTimeout(runStep, 500);
@@ -110,6 +122,7 @@
 
     function drawChart() {
         const canvas = document.getElementById('chart'), ctx = canvas.getContext('2d');
+        if(!canvas) return;
         canvas.width = canvas.offsetWidth; canvas.height = 240;
         const padding = 50, w = canvas.width - padding * 2, h = canvas.height - padding * 2;
         ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -122,7 +135,9 @@
         const getYPort = (v) => canvas.height - padding - ((v - minPort) / (maxPort - minPort)) * h;
 
         // Achsen
-        ctx.strokeStyle = "#e2e8f0"; ctx.beginPath(); ctx.moveTo(padding, padding); ctx.lineTo(padding, canvas.height-padding); ctx.lineTo(canvas.width-padding, canvas.height-padding); ctx.stroke();
+        ctx.strokeStyle = "#e2e8f0"; ctx.beginPath(); 
+        ctx.moveTo(padding, padding); ctx.lineTo(padding, canvas.height-padding); 
+        ctx.lineTo(canvas.width-padding, canvas.height-padding); ctx.stroke();
         
         // Preis (Grau gestrichelt)
         ctx.setLineDash([5, 5]); ctx.strokeStyle = "#94a3b8"; ctx.beginPath();
