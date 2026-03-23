@@ -79,10 +79,15 @@
     function toggleSimulation() {
         isRunning = !isRunning;
         const btn = document.getElementById('startBtn');
-        btn.innerText = isRunning ? "⏹ Simulation Stoppen" : "▶ Simulation Starten";
-        // Dank CSS-Klasse btn-start müssen wir hier nur die Hintergrundfarbe bei Stop ändern:
-        btn.style.background = isRunning ? "#ef4444" : "#10b981";
-        if(isRunning) runStep();
+        
+        if (isRunning) {
+            btn.innerText = "⏹ Simulation Stoppen";
+            btn.classList.add('running'); // CSS macht ihn rot
+            runStep();
+        } else {
+            btn.innerText = "▶ Simulation Starten";
+            btn.classList.remove('running'); // CSS macht ihn wieder grün
+        }
     }
 
     function runStep() {
