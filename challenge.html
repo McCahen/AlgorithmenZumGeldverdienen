@@ -37,7 +37,7 @@
         <h2>🚀 Algo-Workshop: Finale Challenge</h2>
         <p>Gib Deinen Namen ein:</p>
         <input type="text" id="playerName" placeholder="Name...">
-        </br>
+        <br>
         <div style="text-align: center; margin-top: 30px;">
             <button id="mainStartBtn" class="btn-start" onclick="startTrading()" disabled>
                 🔒 Warte auf Freigabe...
@@ -199,13 +199,20 @@
     function checkRule(id, action) {
         const toggle = document.getElementById('e' + id);
         if (!toggle || !toggle.checked) return;
+        
         let t = parseInt(document.getElementById('t' + id).value);
         let p = parseFloat(document.getElementById('p' + id).value) / 100;
         let amount = parseInt(document.getElementById('a' + id).value);
+        
         if (history.length > t) {
             let oldPrice = history[history.length - 1 - t];
             let change = (price - oldPrice) / oldPrice;
-            if ((id <= 2 && change >= p) || (id > 2 && change <= -p)) executeTrade(action, amount);
+    
+            // Logik basierend auf der Aktion
+            if (id === 1 && change >= p) executeTrade("BUY", amount);   // Trend-Kauf
+            if (id === 2 && change >= p) executeTrade("SELL", amount);  // Take-Profit
+            if (id === 3 && change <= -p) executeTrade("BUY", amount);  // Dip-Kauf
+            if (id === 4 && change <= -p) executeTrade("SELL", amount); // Stop-Loss
         }
     }
 
