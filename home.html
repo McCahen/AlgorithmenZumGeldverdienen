@@ -2,63 +2,127 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Algo-Workshop: Trends kontern</title>
+    <title>Börsen-Workshop | Home</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Spezifisches Design für die Home-Kacheln */
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .welcome-section h1 {
+            color: #006b4d;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .lesson-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .lesson-card:hover {
+            transform: translateY(-10px);
+            border-color: #006b4d;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        .lesson-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .lesson-card h3 {
+            margin: 10px 0;
+            color: #1e293b;
+        }
+        .lesson-card p {
+            font-size: 0.9em;
+            color: #64748b;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <a href="home.html">
-                <img src="HSG_Logo_DE_RGB.png" alt="HSG Logo">
-            </a>
-        </div>
-        
-        <nav>
-            <a href="statisch.html">Statisch</a>
-            <a href="trend.html">Trend</a>
-            <a href="konter-trend.html">Konter-Trend</a>
-            <a href="kombiniert.html">Kombiniert</a>
-            <a href="challenge.html">Final Challenge</a>
-        </nav>
-    </header>
-<div class="welcome-container">
-    <div class="header">
-        <h1>Algorithmen-Workshop 2026</h1>
-        <p class="subtitle">Willkommen, Trader! Wir lernen heute, wie wir die Idee von algorithmischem Denken auf Geldverdienen anwenden können. Konkret explorieren wir verschiedene Herangehensweisen, und enden mit einer gemeinsamen Simulation Eurer besten Strategien.</p>
+
+<header>
+    <div class="logo-container">
+        <a href="home.html">
+            <img src="HSG_Logo_DE_RGB.png" alt="HSG Logo">
+        </a>
+    </div>
+    
+    <button class="menu-toggle" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </button>
+
+    <nav id="main-nav">
+        <a href="home.html" class="active">Home</a>
+        <a href="statisch.html">Statisch</a>
+        <a href="trend.html">Trend</a>
+        <a href="konter-trend.html">Konter-Trend</a>
+        <a href="kombiniert.html">Kombiniert</a>
+        <a href="challenge.html">Challenge</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="welcome-section">
+        <h1>Willkommen zum Algo-Trader</h1>
+        <p>Lerne, wie Algorithmen an der Börse funktionieren und entwickle deine eigene Strategie.</p>
     </div>
 
-    <nav class="nav-grid">
-        <a href="statisch.html" class="nav-card">
+    <div class="lesson-grid">
+        <a href="statisch.html" class="lesson-card">
             <span class="icon">📊</span>
-            <h3>Statisch</h3>
-            <p>Tief kaufen, hoch verkaufen. So schwer kann das nicht sein.</p>
+            <h3>1. Statisch</h3>
+            <p>Die Grundlagen: Was passiert, wenn man einfach nur hält?</p>
         </a>
 
-        <a href="trend.html" class="nav-card">
+        <a href="trend.html" class="lesson-card">
             <span class="icon">📈</span>
-            <h3>Trend-Folge</h3>
-            <p>FoMo? Jetzt einfach den Trends folgen.</p>
+            <h3>2. Trend-Folge</h3>
+            <p>Kaufe, wenn der Markt steigt. Nutze das Momentum.</p>
         </a>
 
-        <a href="konter-trend.html" class="nav-card">
+        <a href="konter-trend.html" class="lesson-card">
             <span class="icon">📉</span>
-            <h3>Konter-Trend</h3>
-            <p>Kaufen, wenn andere verkaufen und Gewinne mitnehmen, bevor's zu spät ist.</p>
+            <h3>3. Konter-Trend</h3>
+            <p>Antizyklisch handeln: Kaufen, wenn andere in Panik geraten.</p>
         </a>
 
-        <a href="kombiniert.html" class="nav-card">
+        <a href="kombiniert.html" class="lesson-card">
             <span class="icon">🧬</span>
-            <h3>Kombiniert</h3>
-            <p>Sind mehr Strategien besser? Probiere es aus!</p>
+            <h3>4. Kombiniert</h3>
+            <p>Mische die Regeln und erstelle ein komplexes Handelssystem.</p>
         </a>
-        
-        <a href="challenge.html" class="nav-card challenge-card">
+
+        <a href="challenge.html" class="lesson-card" style="border-width: 2px;">
             <span class="icon">🏆</span>
             <h3>Final Challenge</h3>
-            <p>Teste Deinen Algorithmus gegen die der Anderen und gewinne einen Preis!</p>
+            <p>Tritt gegen deine Mitschüler an und erringe Platz 1 im Live-Ranking!</p>
         </a>
-    </nav>
+    </div>
 </div>
+
+<script>
+    // Navigation für Mobile zum Aufklappen
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+</script>
 
 </body>
 </html>
