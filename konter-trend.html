@@ -22,53 +22,69 @@
         <nav id="main-nav">
             <a href="statisch.html">Statisch</a>
             <a href="trend.html">Trend</a>
-            <a href="konter-trend.html">Konter-Trend</a>
+            <a href="konter-trend.html" class="active">Konter-Trend</a>
             <a href="kombiniert.html">Kombiniert</a>
             <a href="challenge.html">Final Challenge</a>
         </nav>
     </header>
+
 <div class="container">
     <h2>🚀 Konter-Trend: Dip-Kauf & Gewinnmitnahme</h2>
     
     <div class="market-info">
-        <div>Aktueller Kurs <strong id="price">100.00</strong></div>
-        <div>Beobachtungszeitraum <strong><span id="displayTicks">10</span> Ticks</strong></div>
-        <div>Depotwert <strong id="total" style="color: #0284c7;">1000.00</strong></div>
+        <div>Aktueller Kurs <strong id="price">100.00 €</strong></div>
+        <div>Depotwert <strong id="total" style="color: #006b4d;">1000.00 €</strong></div>
     </div>
+
+    <canvas id="chart"></canvas>
 
     <div class="strategy-grid">
         <div class="rule-card buy">
-            <h4>🛒 Kauf-Bedingung</h4>
+            <div class="switch-header">
+                <h4>🛒 Kauf-Bedingung</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="buy_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
             <div class="input-group">
                 <span>Zeitraum (Ticks):</span>
-                <input type="number" id="ticks" value="10" oninput="document.getElementById('displayTicks').innerText=this.value">
+                <input type="number" id="ticks_buy" value="10">
             </div>
             <div class="input-group">
                 <span>Kursfall ></span>
-                <span><input type="number" id="percent" value="2"> %</span>
+                <span><input type="number" id="percent_buy" value="2"> %</span>
             </div>
             <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
-                "Kaufe den Dip": Wenn der Kurs schnell sinkt, erwarten wir eine Erholung.
+                "Kaufe den Dip": Wenn der Kurs über diesen Zeitraum sinkt, steigen wir ein.
             </p>
         </div>
 
         <div class="rule-card sell">
-            <h4>💰 Verkauf-Bedingung</h4>
-            <div class="input-group" style="visibility: hidden;"> <span>Zeitraum:</span><span>-</span>
+            <div class="switch-header">
+                <h4>💰 Verkauf-Bedingung</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="sell_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Zeitraum (Ticks):</span>
+                <input type="number" id="ticks_sell" value="5">
             </div>
             <div class="input-group">
                 <span>Kursanstieg ></span>
                 <span><input type="number" id="percent_sell" value="2"> %</span>
             </div>
             <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
-                "Gewinne sichern": Wenn der Kurs schnell steigt, verkaufen wir vor dem Rücksetzer.
+                "Gewinne sichern": Wenn der Kurs über diesen Zeitraum steigt, steigen wir aus.
             </p>
         </div>
     </div>
+
     <div style="text-align: center; margin-top: 20px;">
         <button onclick="toggleSimulation()" id="startBtn" class="btn-start">▶ Simulation Starten</button>
     </div>
-    <canvas id="chart"></canvas>
 
     <div class="footer-stats">
         <span>Cash: <b id="cash">1000.00</b> €</span>
@@ -81,42 +97,62 @@
     let price = 100, cash = 1000, shares = 0, isRunning = false;
     let history = [100], portfolioHistory = [1000];
 
+    // Navigation Funktion direkt hier drin
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
+
     function toggleSimulation() {
         isRunning = !isRunning;
         const btn = document.getElementById('startBtn');
         
         if (isRunning) {
             btn.innerText = "⏹ Simulation Stoppen";
-            btn.classList.add('running'); // CSS macht ihn rot
+            btn.classList.add('running');
             runStep();
         } else {
             btn.innerText = "▶ Simulation Starten";
-            btn.classList.remove('running'); // CSS macht ihn wieder grün
+            btn.classList.remove('running');
         }
     }
 
     function runStep() {
         if(!isRunning) return;
 
-        // 1. Markt simuliere
+        // 1. Markt simulieren
         let change = (Math.random() - 0.5) * 4;
         price = Math.max(10, +(price + change).toFixed(2));
         history.push(price);
-        if(history.length > 50) history.shift();
+        if(history.length > 100) history.shift();
 
-        // 2. Strategie auslesen
-        let t = parseInt(document.getElementById('ticks').value);
-        let p_buy = parseFloat(document.getElementById('percent').value) / 100;
-        let p_sell = parseFloat(document.getElementById('percent_sell').value) / 100;
+        // 2. Strategie-Logik
+        
+        // KAUF LOGIK
+        if (document.getElementById('buy_active').checked) {
+            let tBuy = parseInt(document.getElementById('ticks_buy').value);
+            let pBuy = parseFloat(document.getElementById('percent_buy').value) / 100;
+            
+            if (history.length > tBuy) {
+                let oldPriceBuy = history[history.length - 1 - tBuy];
+                let ratioBuy = (price - oldPriceBuy) / oldPriceBuy;
+                if (ratioBuy <= -pBuy && cash >= price) {
+                    cash -= price; shares++;
+                }
+            }
+        }
 
-        if (history.length > t) {
-            let oldPrice = history[history.length - 1 - t];
-            let ratio = (price - oldPrice) / oldPrice;
+        // VERKAUF LOGIK
+        if (document.getElementById('sell_active').checked) {
+            let tSell = parseInt(document.getElementById('ticks_sell').value);
+            let pSell = parseFloat(document.getElementById('percent_sell').value) / 100;
 
-            if (ratio <= -p_buy && cash >= price) {
-                cash -= price; shares++;
-            } else if (ratio >= p_sell && shares > 0) {
-                cash += price; shares--;
+            if (history.length > tSell) {
+                let oldPriceSell = history[history.length - 1 - tSell];
+                let ratioSell = (price - oldPriceSell) / oldPriceSell;
+                if (ratioSell >= pSell && shares > 0) {
+                    cash += price; shares--;
+                }
             }
         }
 
@@ -137,6 +173,7 @@
         drawChart();
     }
 
+    drawChart();
 </script>
 </body>
 </html>
