@@ -218,12 +218,22 @@
 
     function executeTrade(action, amount) {
         const log = document.getElementById('log-msg');
-        if (action === "BUY" && cash >= amount * price) {
-            cash -= amount * price; shares += amount;
-            log.innerText = `✅ KAUF: ${amount} Stk`;
-        } else if (action === "SELL" && shares >= amount) {
-            cash += amount * price; shares -= amount;
-            log.innerText = `💰 VERKAUF: ${amount} Stk`;
+        if (action === "BUY") {
+            if (cash >= amount * price) {
+                cash -= amount * price; shares += amount;
+                log.innerText = `✅ KAUF: ${amount} Stk`;
+            } else {
+                log.innerText = `❌ KAUF fehlgeschlagen: Zu wenig Cash!`;
+                log.style.color = "#ef4444";
+            }
+        } else if (action === "SELL") {
+            if (shares >= amount) {
+                cash += amount * price; shares -= amount;
+                log.innerText = `💰 VERKAUF: ${amount} Stk`;
+            } else {
+                log.innerText = `❌ VERKAUF fehlgeschlagen: Keine Aktien!`;
+                log.style.color = "#ef4444";
+            }
         }
     }
 
