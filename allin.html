@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Algo-Workshop: Momentum & All-In</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="charts.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="home.html"><img src="HSG_Logo_DE_RGB.png" alt="HSG Logo"></a>
+        </div>
+        <nav id="main-nav">
+            <a href="statisch.html">Statisch</a>
+            <a href="trend.html" class="active">All-In Strategy</a>
+        </nav>
+    </header>
+
+<div class="container">
+    <h2>🚀 All-In Momentum: Alles oder Nichts</h2>
+    
+    <div class="market-info">
+        <div>Aktueller Kurs: <strong id="price">100.00 CHF</strong></div>
+        <div>Depotwert: <strong id="total" style="color: #006b4d;">1000.00 CHF</strong></div>
+    </div>
+
+    <canvas id="chart"></canvas>
+
+    <div class="strategy-grid">
+        <div class="rule-card buy">
+            <div class="switch-header">
+                <h4>🚀 All-In Kauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="buy_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Zeitraum (Ticks):</span>
+                <input type="number" id="ticks" value="5">
+            </div>
+            <div class="input-group">
+                <span>Anstieg > %:</span>
+                <input type="number" id="percent_buy" value="1.5">
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                Investiert 100% des Cashs, sobald ein Aufwärtstrend erkannt wird.
+            </p>
+        </div>
+
+        <div class="rule-card sell">
+            <div class="switch-header">
+                <h4>🛑 Trend-Reißleine</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="sell_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Zeitraum (Ticks):</span>
+                <input type="number" id="ticks_sell" value="8">
+            </div>
+            <div class="input-group">
+                <span>Fall > %:</span>
+                <input type="number" id="percent_sell" value="2.0">
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                Verkauft das gesamte Portfolio, wenn der Kurs signifikant einknickt.
+            </p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <button onclick="toggleSimulation()" id="startBtn" class="btn-start">▶ Simulation Starten</button>
+    </div>
+
+    <div class="footer-stats">
+        <span>Cash: <b id="cash">1000.00</b> CHF</span>
+        <span>Besitz: <b id="shares">0</b> Stück</span>
+    </div>
+</div>
+
+<script>
+    let price = 100, cash = 1000, shares = 0, isRunning = false;
+    let history = [100], portfolioHistory = [1000];
+
+    function toggleSimulation() {
+        isRunning = !isRunning;
+        const btn = document.getElementById('startBtn');
+        if (isRunning) {
+            btn.innerText = "⏹ Simulation Stoppen";
+            btn.classList.add('running');
+            runStep();
+        } else {
+            btn.innerText = "▶ Simulation Starten";
+            btn.classList.remove('running');
+        }
+    }
+
+    function runStep() {
+        if(!isRunning) return;
+
+        // 1. Marktbewegung (simuliert)
+        let change = (Math.random() - 0.5) * 4;
+        price = Math.max(10, +(price + change).toFixed(2));
+        history.push(price);
+        if(history.length > 100) history.shift();
+
+        // 2. KAUF LOGIK: ALL-IN (Zeitbasiert)
+        if (document.getElementById('buy_active').checked && cash >= price) {
+            let tBuy = parseInt(document.getElementById('ticks').value);
+            let pBuy = parseFloat(document.getElementById('percent_buy').value) / 100;
+            
+            if (history.length > tBuy) {
+                let oldPrice = history[history.length - 1 - tBuy];
+                let growth = (price - oldPrice) / oldPrice;
+
+                if (growth >= pBuy) {
+                    // ALL-IN: Kaufe so viele wie möglich
+                    let amountToBuy = Math.floor(cash / price);
+                    if(amountToBuy > 0) {
+                        cash -= (amountToBuy * price);
+                        shares += amountToBuy;
+                        console.log("ALL-IN KAUF: " + amountToBuy + " Stück");
+                    }
+                }
+            }
+        }
+
+        // 3. VERKAUF LOGIK: TREND-STOP (Zeitbasiert)
+        if (document.getElementById('sell_active').checked && shares > 0) {
+            let tSell = parseInt(document.getElementById('ticks_sell').value);
+            let pSell = parseFloat(document.getElementById('percent_sell').value) / 100;
+            
+            if (history.length > tSell) {
+                let oldPrice = history[history.length - 1 - tSell];
+                let drop = (oldPrice - price) / oldPrice;
+
+                if (drop >= pSell) {
+                    // REISSLEINE: Alles verkaufen
+                    cash += (shares * price);
+                    console.log("MOMENTUM-STOP: Alles verkauft bei " + price);
+                    shares = 0;
+                }
+            }
+        }
+
+        let currentTotal = +(cash + (shares * price)).toFixed(2);
+        portfolioHistory.push(currentTotal);
+        if(portfolioHistory.length > 50) portfolioHistory.shift();
+
+        updateUI(currentTotal);
+        setTimeout(runStep, 500);
+    }
+
+    function updateUI(total) {
+        document.getElementById('price').innerText = price.toFixed(2) + " CHF";
+        document.getElementById('cash').innerText = cash.toFixed(2);
+        document.getElementById('shares').innerText = shares;
+        document.getElementById('total').innerText = total.toFixed(2) + " CHF";
+        if (typeof drawChart === "function") drawChart();
+    }
+
+    window.onload = () => { drawChart(); };
+</script>
+</body>
+</html>
