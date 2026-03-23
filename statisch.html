@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Algo-Workshop: Trends kontern</title>
+    <title>Algo-Workshop: Statische Strategie</title>
     <link rel="stylesheet" href="style.css">
     <script src="charts.js"></script>
 </head>
@@ -20,33 +20,63 @@
         </button>
     
         <nav id="main-nav">
-            <a href="statisch.html">Statisch</a>
+            <a href="statisch.html" class="active">Statisch</a>
             <a href="trend.html">Trend</a>
             <a href="konter-trend.html">Konter-Trend</a>
             <a href="kombiniert.html">Kombiniert</a>
             <a href="challenge.html">Final Challenge</a>
-        </nav>        
-
+        </nav>
     </header> 
     
 <div class="container">
-    <h2>🚀 Ein erster Versuch: Tief kaufen, hoch verkaufen</h2>
+    <h2>🚀 Ein erster Versuch: Feste Preisgrenzen</h2>
     
     <div class="market-info">
-        <div>Aktueller Kurs: <strong id="price">100</strong></div>
-        <div>Depotwert: <strong id="total">1000</strong></div>
-    </div>
-
-    <div class="controls">
-        <h3>Strategie-Logik:</h3>
-        <p>
-            Wenn der Preis unter <input type="number" id="buyTrigger" value="95">  ist, dann <b style="color:#0284c7">KAUFEN</b> (1 Stück)<br>
-            Wenn der Preis über   <input type="number" id="sellTrigger" value="105">  ist, dann <b style="color:#ef4444">VERKAUFEN</b> (1 Stück)
-        </p>
-        <button onclick="toggleSimulation()" id="startBtn">Simulation Starten</button>
+        <div>Aktueller Kurs <strong id="price">100.00 €</strong></div>
+        <div>Depotwert <strong id="total" style="color: #006b4d;">1000.00 €</strong></div>
     </div>
 
     <canvas id="chart"></canvas>
+
+    <div class="strategy-grid">
+        <div class="rule-card buy">
+            <div class="switch-header">
+                <h4>🛒 Preis-Kauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="buy_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Kaufen unter (€):</span>
+                <input type="number" id="buyTrigger" value="95">
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                Der Algorithmus kauft automatisch 1 Stück, sobald der Preis unter diese Grenze fällt.
+            </p>
+        </div>
+
+        <div class="rule-card sell">
+            <div class="switch-header">
+                <h4>💰 Preis-Verkauf</h4>
+                <label class="ios-switch">
+                    <input type="checkbox" id="sell_active" checked>
+                    <span class="ios-slider"></span>
+                </label>
+            </div>
+            <div class="input-group">
+                <span>Verkaufen über (€):</span>
+                <input type="number" id="sellTrigger" value="105">
+            </div>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 10px;">
+                Der Algorithmus verkauft automatisch 1 Stück, sobald der Preis diese Grenze überschreitet.
+            </p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <button onclick="toggleSimulation()" id="startBtn" class="btn-start">▶ Simulation Starten</button>
+    </div>
 
     <div class="footer-stats">
         <span>Cash: <b id="cash">1000.00</b> €</span>
@@ -56,12 +86,13 @@
 </div>
 
 <script>
-    let price = 100;
-    let cash = 1000;
-    let shares = 0;
-    let isRunning = false;
-    let history = [100];
-    let portfolioHistory = [1000]; // Startwert des Depots
+    let price = 100, cash = 1000, shares = 0, isRunning = false;
+    let history = [100], portfolioHistory = [1000];
+
+    function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        nav.classList.toggle('active');
+    }
 
     function toggleSimulation() {
         isRunning = !isRunning;
@@ -69,43 +100,45 @@
         
         if (isRunning) {
             btn.innerText = "⏹ Simulation Stoppen";
-            btn.classList.add('running'); // CSS macht ihn rot
+            btn.classList.add('running');
             runStep();
         } else {
             btn.innerText = "▶ Simulation Starten";
-            btn.classList.remove('running'); // CSS macht ihn wieder grün
+            btn.classList.remove('running');
         }
     }
 
     function runStep() {
         if(!isRunning) return;
 
-        // 1. Markt simuliere (Zufallsbewegung)
+        // 1. Markt simulieren
         let change = (Math.random() - 0.5) * 4;
         price = Math.max(10, +(price + change).toFixed(2));
         history.push(price);
+        if(history.length > 50) history.shift();
 
-        // 2. Algorithmus-Logik auslesen
-        let buyAt = parseFloat(document.getElementById('buyTrigger').value);
-        let sellAt = parseFloat(document.getElementById('sellTrigger').value);
-
-        // 3. Entscheidung treffen
-        if (price <= buyAt && cash >= price) {
-            cash -= price;
-            shares++;
-            console.log("Kauf bei " + price);
-        } else if (price >= sellAt && shares > 0) {
-            cash += price;
-            shares--;
-            console.log("Verkauf bei " + price);
+        // 2. KAUF LOGIK
+        if (document.getElementById('buy_active').checked) {
+            let buyAt = parseFloat(document.getElementById('buyTrigger').value);
+            if (price <= buyAt && cash >= price) {
+                cash -= price; shares++;
+            }
         }
 
-        let totalValue = +(cash + shares * price).toFixed(2);
+        // 3. VERKAUF LOGIK
+        if (document.getElementById('sell_active').checked) {
+            let sellAt = parseFloat(document.getElementById('sellTrigger').value);
+            if (price >= sellAt && shares > 0) {
+                cash += price; shares--;
+            }
+        }
+
+        let totalValue = +(cash + (shares * price)).toFixed(2);
         portfolioHistory.push(totalValue);
-        if(portfolioHistory.length > 50) portfolioHistory.shift(); // Limitieren auf 50 Datenpunkte
+        if(portfolioHistory.length > 50) portfolioHistory.shift();
         
         updateUI(totalValue);
-        setTimeout(runStep, 500); // Alle 0.5 Sek ein Tick
+        setTimeout(runStep, 500);
     }
 
     function updateUI(total) {
@@ -117,8 +150,8 @@
         drawChart();
     }
 
-
-}
+    // Initialisierung
+    drawChart();
 </script>
 </body>
 </html>
