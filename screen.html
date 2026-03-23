@@ -5,6 +5,23 @@
     <title>🏆 Live-Ranking | Börsen-Workshop</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Spezifische Anpassungen nur für das Ranking-Display */
+        h1 { text-align: center; color: #006b4d; margin-top: 40px; }
+        table { 
+            width: 100%; 
+            max-width: 900px; 
+            margin: 30px auto; 
+            border-collapse: collapse; 
+            font-size: 1.4em; /* Größer für den Beamer */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        th { background: #006b4d; color: white; padding: 20px; text-align: left; }
+        td { padding: 15px 20px; border-bottom: 1px solid #eee; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        tr:first-child { font-weight: bold; font-size: 1.2em; color: #b59410; } /* Platz 1 Gold */
+        .score-val { font-family: monospace; text-align: right; }
+    </style>
 </head>
 <body>
     <header>
@@ -13,12 +30,26 @@
                 <img src="HSG_Logo_DE_RGB.png" alt="HSG Logo">
             </a>
         </div>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="challenge.html">Challenge</a>
+        </nav>
+    </header>
 
-    <h1>Börsen-Ranking</h1>
-    <table>
-        <thead><tr><th>Rang</th><th>Team</th><th>Depotwert</th></tr></thead>
-        <tbody id="leaderboardBody"></tbody>
-    </table>
+    <div class="container">
+        <h1>🏆 Live-Ranking</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Team</th>
+                    <th style="text-align: right;">Depotwert</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+                </tbody>
+        </table>
+    </div>
 
     <script>
         const S_URL = 'https://tzatuzzwdvkayowffbxy.supabase.co';
@@ -26,13 +57,30 @@
         const db = supabase.createClient(S_URL, S_KEY);
 
         async function update() {
-            const { data } = await db.from('leaderboard').select('*').order('score', { ascending: false });
-            if (data) {
-                document.getElementById('leaderboardBody').innerHTML = data.map((row, i) => 
-                    `<tr><td>#${i+1}</td><td>${row.name}</td><td>${row.score.toLocaleString('de-DE')} €</td></tr>`
-                ).join('');
+            try {
+                const { data, error } = await db
+                    .from('leaderboard')
+                    .select('*')
+                    .order('score', { ascending: false });
+
+                if (error) throw error;
+
+                if (data) {
+                    document.getElementById('leaderboardBody').innerHTML = data.map((row, i) => `
+                        <tr>
+                            <td>#${i + 1}</td>
+                            <td>${row.name || 'Anonym'}</td>
+                            <td class="score-val">${row.score.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Update Fehler:", err.message);
             }
         }
+
+        // Initialer Aufruf und Intervall
+        update();
         setInterval(update, 2000);
     </script>
 </body>
