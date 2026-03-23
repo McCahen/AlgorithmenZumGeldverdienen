@@ -111,15 +111,27 @@
             if (activeTrend === 'bear') changePercent -= 0.006; 
             
             price = Math.max(0.5, +(price * (1 + changePercent)).toFixed(2));
+            
+            // TRICK: Wir füllen BEIDE Arrays mit dem Preis
+            // 'history' sorgt für die graue Hilfslinie und die Skalierung der Y-Achse
+            // 'portfolioHistory' sorgt dafür, dass die Linie fett & HSG-Grün erscheint
             history.push(price);
-            if(history.length > 50) history.shift();
+            portfolioHistory.push(price); 
+        
+            if(history.length > 50) {
+                history.shift();
+                portfolioHistory.shift();
+            }
             
             updateUI();
         }
-
+        
         async function updateUI() {
             document.getElementById('priceLabel').innerText = price.toFixed(2);
+            
+            // Jetzt zeichnet drawChart() den Kurs in fettem Grün!
             if (typeof drawChart === "function") drawChart(); 
+            
             await db.from('market').update({ price: price }).eq('id', 1);
         }
 
