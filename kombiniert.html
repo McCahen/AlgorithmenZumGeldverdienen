@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>HSG Workshop: Kombiniert</title>
+    <title>HSG Algo-Trader: Kombiniert</title>
     <link rel="stylesheet" href="style.css">
     <script src="charts.js"></script>
 </head>
@@ -19,6 +19,7 @@
         <a href="trend.html">Trend</a>
         <a href="konter-trend.html">Konter-Trend</a>
         <a href="kombiniert.html" class="active">Kombiniert</a>
+        <a href="challenge.html">Final Challenge</a>
     </nav>
 </header>
 
@@ -33,6 +34,7 @@
     <canvas id="chart"></canvas>
 
     <div class="strategy-grid">
+        
         <div class="rule-card buy">
             <div class="switch-header">
                 <h4>📈 Trend-Kauf</h4>
@@ -156,10 +158,10 @@
         document.getElementById('shares').innerText = shares;
         document.getElementById('sharesValue').innerText = (shares * price).toFixed(2);
         document.getElementById('total').innerText = total.toFixed(2) + " €";
-        drawChart(); // Ruft die Funktion aus charts.js auf
+        drawChart(); // Nutzt die externe Funktion aus charts.js
     }
 
-    // Sofort beim Laden aufrufen, um das leere Gitter zu zeigen
+    // Sofort beim Laden aufrufen für das leere Gitter
     drawChart();
 </script>
 </body>
