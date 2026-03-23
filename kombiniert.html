@@ -115,15 +115,17 @@
 
         // --- SIMULATION CONTROL ---
         function toggleSimulation() {
-            playerName = document.getElementById('playerName').value.trim();
-            if (!playerName) return alert("Bitte Team-Namen eingeben!");
-            
             isRunning = !isRunning;
             const btn = document.getElementById('startBtn');
-            btn.innerText = isRunning ? "⏹ Trading Bot Stoppen" : "▶ Trading Bot Starten";
-            if(isRunning) { btn.classList.add('running'); } else { btn.classList.remove('running'); }
             
-            if(isRunning) runLoop();
+            if (isRunning) {
+                btn.innerText = "⏹ Simulation Stoppen";
+                btn.classList.add('running'); // CSS macht ihn rot
+                runStep();
+            } else {
+                btn.innerText = "▶ Simulation Starten";
+                btn.classList.remove('running'); // CSS macht ihn wieder grün
+            }
         }
 
         // --- MAIN LOOP (LIVE DATEN) ---
