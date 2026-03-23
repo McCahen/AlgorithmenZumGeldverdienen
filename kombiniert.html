@@ -5,6 +5,7 @@
     <title>HSG Algo-Trader: Final Challenge</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="charts.js"></script>
 </head>
 <body>
 
@@ -190,20 +191,7 @@
             drawChart();
         }
 
-        function drawChart() {
-            const canvas = document.getElementById('chart'), ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth; canvas.height = 200;
-            const padding = 30, w = canvas.width - padding * 2, h = canvas.height - padding * 2;
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            if (history.length < 2) return;
-            const minP = Math.min(...history) * 0.99, maxP = Math.max(...history) * 1.01;
-            const minPort = Math.min(...portfolioHistory) * 0.99, maxPort = Math.max(...portfolioHistory) * 1.01;
-            const getX = (i) => padding + (i / 49) * w;
-            ctx.setLineDash([5, 5]); ctx.strokeStyle = "#94a3b8"; ctx.beginPath();
-            history.forEach((v, i) => i === 0 ? ctx.moveTo(getX(i), canvas.height - padding - ((v - minP) / (maxP - minP)) * h) : ctx.lineTo(getX(i), canvas.height - padding - ((v - minP) / (maxP - minP)) * h)); ctx.stroke();
-            ctx.setLineDash([]); ctx.strokeStyle = "#006b4d"; ctx.lineWidth = 3; ctx.beginPath();
-            portfolioHistory.forEach((v, i) => i === 0 ? ctx.moveTo(getX(i), canvas.height - padding - ((v - minPort) / (maxPort - minPort)) * h) : ctx.lineTo(getX(i), canvas.height - padding - ((v - minPort) / (maxPort - minPort)) * h)); ctx.stroke();
-        }
+
     </script>
 </body>
 </html>
