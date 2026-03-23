@@ -56,32 +56,41 @@
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6YXR1enp3ZHZrYXlvd2ZmYnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTI1NDcsImV4cCI6MjA4ODEyODU0N30.cz5jRfhlOGs9OhFeIfdORPjDljcysI_6db3ny9fLRE4';
         const db = supabase.createClient(S_URL, S_KEY);
 
-        async function update() {
-            try {
-                const { data, error } = await db
-                    .from('leaderboard')
-                    .select('*')
-                    .order('score', { ascending: false });
-
-                if (error) throw error;
-
-                if (data) {
-                    document.getElementById('leaderboardBody').innerHTML = data.map((row, i) => `
-                        <tr>
-                            <td>#${i + 1}</td>
-                            <td>${row.name || 'Anonym'}</td>
-                            <td class="score-val">${row.score.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CHF</td>
-                        </tr>
-                    `).join('');
-                }
-            } catch (err) {
-                console.error("Update Fehler:", err.message);
-            }
+        async function updateLeaderboard() {
+            const { data, error } = await db
+                .from('leaderboard')
+                .select('*')
+                .order('score', { ascending: false })
+                .limit(10); // Top 10 anzeigen
+        
+            if (error) return;
+        
+            const list = document.getElementById('leaderboard-body');
+            list.innerHTML = "";
+        
+            data.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                
+                // Rang bestimmen (index startet bei 0, also +1)
+                const rank = index + 1;
+        
+                // CSS Klasse basierend auf Rang hinzufügen
+                if (rank === 1) row.className = "rank-1";
+                else if (rank === 2) row.className = "rank-2";
+                else if (rank === 3) row.className = "rank-3";
+        
+                row.innerHTML = `
+                    <td>${rank}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.score.toFixed(2)} CHF</td>
+                `;
+                list.appendChild(row);
+            });
         }
 
         // Initialer Aufruf und Intervall
-        update();
-        setInterval(update, 2000);
+        updateLeaderboard();
+        setInterval(update, 500);
     </script>
 </body>
 </html>
