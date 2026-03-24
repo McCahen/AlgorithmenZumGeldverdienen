@@ -109,6 +109,30 @@
         let price = 100.00, history = [100.00], portfolioHistory = [100.00]; 
         let activeTrend = 'sideways', volatility = 1.5, marketActive = false, tickerId = null, challengeActive = false;
 
+        // Funktion im Lehrer-Dashboard
+        async function createRoom() {
+            const roomName = document.getElementById('roomInput').value.trim();
+            if (!roomName) return alert("Bitte einen Raumnamen eingeben!");
+        
+            // Neuen Eintrag in der Tabelle 'market' anlegen
+            const { data, error } = await tradingDb
+                .from('market')
+                .insert([{ 
+                    room_id: roomName, 
+                    price: 100, 
+                    challenge_active: false 
+                }])
+                .select();
+        
+            if (error) {
+                alert("Raum existiert bereits oder Fehler: " + error.message);
+            } else {
+                alert("Raum '" + roomName + "' wurde erstellt! Gib den Schülern diesen Code.");
+                // Starte hier die Preis-Update-Loop für DIESEN roomName
+                startPriceSimulation(roomName); 
+            }
+        }
+        
         function toggleMarket() {
             const btn = document.getElementById('masterAction');
             const status = document.getElementById('statusInfo');
