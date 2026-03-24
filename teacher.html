@@ -16,59 +16,74 @@
 
 <div class="container">
     
-    <div id="dashboard-grid" style="display: grid; grid-template-columns: 280px 1fr 280px; gap: 20px; align-items: start;">
-        
-        <aside class="card">
-            <h3>⚙️ Setup & Status</h3>
-            <div id="room-setup">
-                <input type="text" id="roomInput" placeholder="Raum-Code" style="width: 100%; margin-bottom: 10px;">
-                <button onclick="createAndJoinRoom()" class="btn-start btn-block">Raum öffnen</button>
-            </div>
+    <div id="setup-screen" class="setup-container">
+        <div class="card" style="max-width: 400px; margin: 0 auto; text-align: center;">
+            <h2>👨‍🏫 Admin-Login</h2>
+            <p>Raum erstellen oder beitreten:</p>
+            <input type="text" id="roomInput" placeholder="RAUM-CODE (z.B. HSG-1)" style="width: 100%; margin-bottom: 15px;">
+            <button onclick="createAndJoinRoom()" class="btn-start btn-block">Simulation starten</button>
+        </div>
+    </div>
 
-            <div id="active-controls" style="display:none; margin-top: 20px;">
-                <div class="status-bar" style="margin-bottom: 15px;">
+    <div id="admin-ui" style="display: none;">
+        <div style="display: grid; grid-template-columns: 280px 1fr 280px; gap: 20px; align-items: start;">
+            
+            <aside class="card">
+                <h3>⚙️ Setup & Status</h3>
+                <div class="status-bar" style="margin-bottom: 20px;">
                     <span id="status-dot" class="status-dot waiting"></span>
                     <span id="status-text">Bereit</span>
+                    <span style="margin-left: auto; font-weight: bold;" id="active-room-display">-</span>
                 </div>
-                
-                <button id="playPauseBtn" onclick="toggleSimulation()" class="btn-start btn-block" style="background:#00802f; margin-bottom: 10px;">▶️ Start</button>
-                <button id="toggleBtn" onclick="toggleChallenge()" class="btn-start btn-block" style="background:#f59e0b; margin-bottom: 10px;">🔓 Challenge öffnen</button>
-                <button onclick="resetEverything()" class="btn-start btn-block" style="background:#000;">🔄 Reset (Alles)</button>
-                
-                <p style="text-align: center; font-size: 0.8em; color: #64748b; margin-top: 15px;">Raum: <strong id="active-room-display">-</strong></p>
-            </div>
-        </aside>
 
-        <main class="card">
-            <h3>📈 Marktverlauf</h3>
-            <canvas id="chart" style="max-height: 300px;"></canvas>
-            <div class="market-info" style="justify-content: center; gap: 40px; margin-top: 15px;">
-                <div>Kurs: <strong id="current-price">100.00</strong></div>
-                <div>Trend: <strong id="trend-label">Neutral</strong></div>
-            </div>
-        </main>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button id="playPauseBtn" onclick="toggleSimulation()" class="btn-start btn-block" style="background:#00802f; height: 50px;">
+                        ▶️ Markt Starten
+                    </button>
+                    
+                    <button id="toggleBtn" onclick="toggleChallenge()" class="btn-start btn-block" style="background:#f59e0b;">
+                        🔓 Challenge freigeben
+                    </button>
 
-        <aside class="card">
-            <h3>⚡ Interaktion</h3>
-            
-            <h4 style="font-size: 0.8em; color: #64748b;">Events</h4>
-            <button onclick="triggerShock(1.05)" class="btn-start btn-block" style="background:#0ea5e9; margin-bottom: 10px;">🚀 Hype (+5%)</button>
-            <button onclick="triggerShock(0.95)" class="btn-start btn-block" style="background:#6366f1; margin-bottom: 20px;">💥 Crash (-5%)</button>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
 
-            <h4 style="font-size: 0.8em; color: #64748b;">Markt-Phasen</h4>
-            <button onclick="setTrend(0.007, 'Bull')" class="btn-start btn-block" style="background:#10b981; margin-bottom: 5px;">📈 Bull Market</button>
-            <button onclick="setTrend(0, 'Neutral')" class="btn-start btn-block" style="background:#64748b; margin-bottom: 5px;">⚖️ Neutral</button>
-            <button onclick="setTrend(-0.007, 'Bear')" class="btn-start btn-block" style="background:#ef4444;">📉 Bear Market</button>
-
-            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;">
-                <h4 style="font-size: 0.8em; color: #64748b;">Vola: <span id="vola-display">1.2</span>%</h4>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="adjustVola(0.001)" class="btn-start" style="flex:1">+</button>
-                    <button onclick="adjustVola(-0.001)" class="btn-start" style="flex:1">-</button>
+                    <button onclick="resetEverything()" class="btn-start btn-block" style="background:#000;">
+                        🔄 Full Reset (Score & Kurs)
+                    </button>
                 </div>
-            </div>
-        </aside>
+            </aside>
 
+            <main class="card">
+                <h3>📈 Live-Marktverlauf</h3>
+                <canvas id="chart" style="max-height: 320px;"></canvas>
+                <div class="market-info" style="justify-content: center; gap: 40px; margin-top: 15px;">
+                    <div>Kurs: <strong id="current-price" style="font-size: 1.5em;">100.00</strong></div>
+                    <div>Trend: <strong id="trend-label" style="font-size: 1.2em; color: #00802f;">Neutral</strong></div>
+                </div>
+            </main>
+
+            <aside class="card">
+                <h3>⚡ Interaktion</h3>
+                
+                <h4 style="font-size: 0.8em; color: #64748b; margin-bottom: 10px;">MARKTEVENTS</h4>
+                <button onclick="triggerShock(1.05)" class="btn-start btn-block" style="background:#0ea5e9; margin-bottom: 8px;">🚀 Hype (+5%)</button>
+                <button onclick="triggerShock(0.95)" class="btn-start btn-block" style="background:#6366f1; margin-bottom: 20px;">💥 Crash (-5%)</button>
+
+                <h4 style="font-size: 0.8em; color: #64748b; margin-bottom: 10px;">PHASEN-STEUERUNG</h4>
+                <button onclick="setTrend(0.007, 'Bull')" class="btn-start btn-block" style="background:#10b981; margin-bottom: 5px;">📈 Bull Market</button>
+                <button onclick="setTrend(0, 'Neutral')" class="btn-start btn-block" style="background:#64748b; margin-bottom: 5px;">⚖️ Neutral</button>
+                <button onclick="setTrend(-0.007, 'Bear')" class="btn-start btn-block" style="background:#ef4444;">📉 Bear Market</button>
+
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <h4 style="font-size: 0.8em; color: #64748b;">VOLATILITÄT: <span id="vola-display">1.2</span>%</h4>
+                    <div style="display: flex; gap: 5px;">
+                        <button onclick="adjustVola(0.001)" class="btn-start" style="flex:1; padding: 5px;">+</button>
+                        <button onclick="adjustVola(-0.001)" class="btn-start" style="flex:1; padding: 5px;">-</button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
     </div>
 </div>
 
@@ -86,34 +101,36 @@
             type: 'line',
             data: {
                 labels: timeLabels,
-                datasets: [{ label: 'Preis', data: priceHistory, borderColor: '#00802f', borderWidth: 2, tension: 0.3, pointRadius: 0, fill: false }]
+                datasets: [{ label: 'Preis', data: priceHistory, borderColor: '#00802f', borderWidth: 2, tension: 0.3, pointRadius: 0, fill: true, backgroundColor: 'rgba(0,128,47,0.03)' }]
             },
-            options: { responsive: true, animation: false }
+            options: { responsive: true, animation: false, scales: { y: { beginAtZero: false } } }
         });
     }
 
     async function createAndJoinRoom() {
         const name = document.getElementById('roomInput').value.trim().toUpperCase();
-        if(!name) return alert("Raum-Code eingeben!");
+        if(!name) return alert("Raum-Code fehlt!");
         const { error } = await tradingDb.from('market').upsert([{ room_id: name, price: 100, challenge_active: false }], { onConflict: 'room_id' });
         if(error) return alert(error.message);
         currentRoom = name;
-        document.getElementById('room-setup').style.display = 'none';
-        document.getElementById('active-controls').style.display = 'block';
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('admin-ui').style.display = 'block';
         document.getElementById('active-room-display').innerText = name;
         initChart();
     }
 
     function toggleSimulation() {
         isSimRunning = !isSimRunning;
-        document.getElementById('playPauseBtn').innerText = isSimRunning ? "⏸️ Stopp" : "▶️ Start";
-        document.getElementById('playPauseBtn').style.background = isSimRunning ? "#64748b" : "#00802f";
+        const b = document.getElementById('playPauseBtn');
+        b.innerText = isSimRunning ? "⏸️ Markt Stoppen" : "▶️ Markt Starten";
+        b.style.background = isSimRunning ? "#64748b" : "#00802f";
         if(isSimRunning) runLoop();
     }
 
     async function runLoop() {
         if(!isSimRunning) return;
         price = +(price * (1 + (Math.random() - 0.5) * currentVola + currentTrend)).toFixed(2);
+        if(price < 1) price = 1;
         updateDB();
         setTimeout(runLoop, 800);
     }
@@ -126,17 +143,32 @@
         chart.update();
     }
 
-    function setTrend(v, l) { currentTrend = v; document.getElementById('trend-label').innerText = l; }
+    function setTrend(v, l) { 
+        currentTrend = v; 
+        const label = document.getElementById('trend-label');
+        label.innerText = l;
+        label.style.color = v > 0 ? '#10b981' : (v < 0 ? '#ef4444' : '#00802f');
+    }
+
     function triggerShock(f) { price *= f; updateDB(); }
     function adjustVola(d) { currentVola = Math.max(0.001, currentVola + d); document.getElementById('vola-display').innerText = (currentVola * 100).toFixed(1); }
 
     async function toggleChallenge() {
         isChallengeActive = !isChallengeActive;
         await tradingDb.from('market').update({ challenge_active: isChallengeActive }).eq('room_id', currentRoom);
-        document.getElementById('toggleBtn').innerText = isChallengeActive ? "🔒 Challenge sperren" : "🔓 Challenge öffnen";
+        document.getElementById('toggleBtn').innerText = isChallengeActive ? "🔒 Challenge sperren" : "🔓 Challenge freigeben";
         document.getElementById('status-dot').className = isChallengeActive ? "status-dot online" : "status-dot waiting";
         document.getElementById('status-text').innerText = isChallengeActive ? "Aktiv" : "Bereit";
     }
 
     async function resetEverything() {
-        if(!confirm("
+        if(!confirm("Achtung: Kurs auf 100.- und ALLE Schüler-Scores auf 1000.- setzen?")) return;
+        price = 100; priceHistory = [100]; timeLabels = [0];
+        await tradingDb.from('market').update({ price: 100 }).eq('room_id', currentRoom);
+        await tradingDb.from('leaderboard').update({ score: 1000 }).eq('room_id', currentRoom);
+        chart.update();
+        alert("Reset erfolgreich.");
+    }
+</script>
+</body>
+</html>
