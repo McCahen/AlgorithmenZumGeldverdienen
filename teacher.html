@@ -2,8 +2,9 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Lehrer-Dashboard | Marktsteuerung</title>
+    <title>Lehrer-Dashboard | Markt-Kontrolle</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,61 +13,71 @@
     <div class="logo-container">
         <img src="HSG_Logo_DE_RGB.png" alt="HSG Logo">
     </div>
-    <nav>
-        <span style="font-weight: bold; color: #00802f;">Admin-Konsole</span>
-    </nav>
+    <nav><span style="font-weight: bold; color: #00802f;">Live-Marktsteuerung</span></nav>
 </header>
 
 <div class="container">
     <div id="setup-screen" class="setup-container">
         <div class="card">
-            <h2>👨‍🏫 Raum erstellen</h2>
-            <p>Gib einen Code für deine Klasse ein:</p>
-            <input type="text" id="roomInput" placeholder="z.B. KLASSE-4B">
-            <button onclick="createAndJoinRoom()" class="btn-start btn-block">Simulation starten</button>
+            <h2>🚀 Simulation starten</h2>
+            <input type="text" id="roomInput" placeholder="Raum-Code eingeben">
+            <button onclick="createAndJoinRoom()" class="btn-start btn-block">Raum öffnen & Markt starten</button>
         </div>
     </div>
 
     <div id="admin-ui" style="display: none;">
-        <div class="setup-container" style="max-width: 600px;">
-            <div class="card">
-                <div class="status-bar">
-                    <span id="status-dot" class="status-dot"></span>
-                    <span id="status-text">Warte auf Freigabe</span>
-                </div>
-                
-                <h3>Raum: <span id="active-room-display" class="room-display">-</span></h3>
-                
-                <div class="market-info" style="flex-direction: column; align-items: center; gap: 5px;">
-                    <span style="font-size: 0.8em; color: #64748b;">Aktueller Kurs</span>
-                    <strong id="current-price" style="font-size: 2.5em;">100.00</strong>
-                    <small id="trend-label">Status: Seitwärts</small>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                    <button onclick="setTrend(0.008, 'Bull-Market')" class="btn-start" style="background:#10b981; min-width: 0; padding: 10px;">📈 Bull</button>
-                    <button onclick="setTrend(-0.008, 'Bear-Market')" class="btn-start" style="background:#ef4444; min-width: 0; padding: 10px;">📉 Bear</button>
-                    <button onclick="triggerShock(1.20)" class="btn-start" style="background:#0ea5e9; min-width: 0; padding: 10px;">⚡ +20%</button>
-                    <button onclick="triggerShock(0.80)" class="btn-start" style="background:#6366f1; min-width: 0; padding: 10px;">💥 -20%</button>
-                </div>
-                
-                <button onclick="setTrend(0, 'Seitwärts')" class="btn-start btn-block" style="background:#64748b; margin-top: 10px; padding: 8px;">⚖️ Neutralisieren</button>
-
-                <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <button id="toggleBtn" onclick="toggleChallenge()" class="btn-start btn-block" style="background:#f59e0b;">
-                        🔓 Challenge für Schüler öffnen
-                    </button>
-                </div>
-
-                <div style="margin-top: 30px; text-align: left;">
-                    <h4 style="margin-bottom: 10px;">🏆 Top 5 (Live)</h4>
-                    <div id="leaderboard-list" style="font-size: 0.9em;">
-                        Warte auf Teilnehmer...
-                    </div>
-                </div>
-
-                <button onclick="resetChallenge()" style="margin-top: 30px; background: none; border: none; color: #94a3b8; cursor: pointer; text-decoration: underline;">Simulation beenden</button>
+        <div class="card">
+            <div class="status-bar">
+                <span id="status-dot" class="status-dot"></span>
+                <span id="status-text">Warte auf Freigabe</span>
+                <span class="room-display" id="active-room-display" style="margin-left: auto;">-</span>
             </div>
+
+            <canvas id="chart"></canvas>
+
+            <div class="market-info">
+                <span>Aktueller Preis: <strong id="current-price">100.00</strong> CHF</span>
+                <span id="trend-label">Trend: Seitwärts</span>
+            </div>
+
+            <div class="strategy-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                
+                <div class="rule-card">
+                    <h4>Markt-Trend</h4>
+                    <button onclick="setTrend(0.008, 'Bull-Market')" class="btn-start btn-block" style="background:#10b981; margin-bottom:10px;">📈 Bull Market</button>
+                    <button onclick="setTrend(-0.008, 'Bear-Market')" class="btn-start btn-block" style="background:#ef4444; margin-bottom:10px;">📉 Bear Market</button>
+                    <button onclick="setTrend(0, 'Seitwärts')" class="btn-start btn-block" style="background:#64748b;">⚖️ Neutral</button>
+                </div>
+
+                <div class="rule-card">
+                    <h4>Events & Schocks</h4>
+                    <button onclick="triggerShock(1.05)" class="btn-start btn-block" style="background:#0ea5e9; margin-bottom:10px;">⚡ +5% Sprung</button>
+                    <button onclick="triggerShock(0.95)" class="btn-start btn-block" style="background:#6366f1; margin-bottom:10px;">💥 -5% Crash</button>
+                    <button onclick="triggerShock(1.20)" class="btn-start btn-block" style="background:#f59e0b;">🚀 Moon (+20%)</button>
+                </div>
+
+                <div class="rule-card">
+                    <h4>Volatilität</h4>
+                    <button onclick="setVola(0.005)" class="btn-start btn-block" style="background:#94a3b8; margin-bottom:10px;">💤 Niedrig</button>
+                    <button onclick="setVola(0.025)" class="btn-start btn-block" style="background:#1e293b;">🌪️ Hoch (Krise)</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 15px;">
+                <button id="toggleBtn" onclick="toggleChallenge()" class="btn-start btn-block" style="background:#f59e0b; flex: 2;">
+                    🔓 Challenge für Schüler freigeben
+                </button>
+                <button onclick="resetPrice()" class="btn-start btn-block" style="background:#000; flex: 1;">
+                    🔄 Reset Kurs
+                </button>
+            </div>
+
+            <div class="rule-card" style="margin-top: 20px;">
+                <h4>🏆 Top 5 Live</h4>
+                <div id="leaderboard-list">Warte auf Teilnehmer...</div>
+            </div>
+
+            <button onclick="location.reload()" style="margin-top: 20px; background: none; border: none; color: #94a3b8; cursor: pointer;">Abmelden</button>
         </div>
     </div>
 </div>
@@ -76,76 +87,101 @@
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6YXR1enp3ZHZrYXlvd2ZmYnh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTI1NDcsImV4cCI6MjA4ODEyODU0N30.cz5jRfhlOGs9OhFeIfdORPjDljcysI_6db3ny9fLRE4'; 
     const tradingDb = supabase.createClient(S_URL, S_KEY);
 
-    let currentRoom = "", price = 100, isChallengeActive = false, currentTrend = 0;
+    let currentRoom = "", price = 100, isChallengeActive = false;
+    let currentTrend = 0, currentVola = 0.012;
+    let priceHistory = [100], timeLabels = [0];
+    let chart;
+
+    // --- CHART INITIALISIERUNG ---
+    function initChart() {
+        const ctx = document.getElementById('chart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Marktpreis',
+                    data: priceHistory,
+                    borderColor: '#00802f',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    fill: true,
+                    backgroundColor: 'rgba(0, 128, 47, 0.05)'
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: false } }, animation: false }
+        });
+    }
 
     async function createAndJoinRoom() {
-        const roomName = document.getElementById('roomInput').value.trim().toUpperCase();
-        if (!roomName) return alert("Raum-Name fehlt!");
+        const name = document.getElementById('roomInput').value.trim().toUpperCase();
+        if(!name) return;
+        const { error } = await tradingDb.from('market').upsert([{ room_id: name, price: 100, challenge_active: false }], { onConflict: 'room_id' });
+        if(error) return alert(error.message);
 
-        const { error } = await tradingDb.from('market')
-            .upsert([{ room_id: roomName, price: 100, challenge_active: false }], { onConflict: 'room_id' });
-
-        if (error) return alert("DB Fehler: " + error.message);
-
-        currentRoom = roomName;
+        currentRoom = name;
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('admin-ui').style.display = 'block';
-        document.getElementById('active-room-display').innerText = roomName;
+        document.getElementById('active-room-display').innerText = name;
         
+        initChart();
         startPriceLoop();
         setInterval(updateLeaderboard, 2000);
     }
 
+    // --- KONTROLL-FUNKTIONEN ---
     function setTrend(val, label) {
         currentTrend = val;
-        document.getElementById('trend-label').innerText = "Status: " + label;
+        document.getElementById('trend-label').innerText = "Trend: " + label;
     }
 
-    function triggerShock(factor) {
-        price = +(price * factor).toFixed(2);
+    function setVola(val) { currentVola = val; }
+
+    function triggerShock(factor) { price = +(price * factor).toFixed(2); }
+
+    function resetPrice() { 
+        price = 100; 
+        priceHistory = [100]; 
+        timeLabels = [0]; 
     }
 
+    // --- MAIN LOOP ---
     async function startPriceLoop() {
         if (!currentRoom) return;
-        let vola = (Math.random() - 0.5) * 0.012; 
-        price = +(price * (1 + vola + currentTrend)).toFixed(2);
+
+        let change = price * ((Math.random() - 0.5) * currentVola + currentTrend);
+        price = +(price + change).toFixed(2);
         if (price < 5) price = 5;
 
+        // DB Update
         await tradingDb.from('market').update({ price: price }).eq('room_id', currentRoom);
+
+        // UI & Chart Update
         document.getElementById('current-price').innerText = price.toFixed(2);
+        priceHistory.push(price);
+        timeLabels.push(timeLabels.length);
+        if(priceHistory.length > 50) { priceHistory.shift(); timeLabels.shift(); }
+        chart.update();
+
         setTimeout(startPriceLoop, 800);
     }
 
     async function toggleChallenge() {
         isChallengeActive = !isChallengeActive;
         const btn = document.getElementById('toggleBtn');
-        const dot = document.getElementById('status-dot');
-
         await tradingDb.from('market').update({ challenge_active: isChallengeActive }).eq('room_id', currentRoom);
-
         btn.innerText = isChallengeActive ? "🔒 Challenge sperren" : "🔓 Challenge öffnen";
         btn.style.background = isChallengeActive ? "#64748b" : "#f59e0b";
-        dot.className = isChallengeActive ? "status-dot online" : "status-dot waiting";
-        document.getElementById('status-text').innerText = isChallengeActive ? "Markt ist offen" : "Warte auf Freigabe";
+        document.getElementById('status-dot').className = isChallengeActive ? "status-dot online" : "status-dot waiting";
     }
 
     async function updateLeaderboard() {
-        const { data } = await tradingDb.from('leaderboard')
-            .select('name, score').eq('room_id', currentRoom)
-            .order('score', { ascending: false }).limit(5);
-
-        if (data && data.length > 0) {
+        const { data } = await tradingDb.from('leaderboard').select('name, score').eq('room_id', currentRoom).order('score', { ascending: false }).limit(5);
+        if (data) {
             document.getElementById('leaderboard-list').innerHTML = data.map((s, i) => 
-                `<div style="display:flex; justify-content:space-between; padding: 5px 0; border-bottom: 1px solid #f8fafc;">
-                    <span>${i+1}. ${s.name}</span><strong>${s.score.toFixed(2)}</strong>
-                </div>`).join('');
+                `<div class="input-group"><span>${i+1}. ${s.name}</span><strong>${s.score.toFixed(0)}</strong></div>`).join('');
         }
-    }
-
-    async function resetChallenge() {
-        if (!confirm("Alle Teilnehmer kicken?")) return;
-        await tradingDb.from('market').update({ price: -1, challenge_active: false }).eq('room_id', currentRoom);
-        location.reload();
     }
 </script>
 </body>
