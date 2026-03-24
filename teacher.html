@@ -61,8 +61,8 @@
 
                 <div class="rule-card">
                     <h4>Direkt-Eingriff</h4>
-                    <button onclick="triggerShock(1.10)" class="btn-start btn-block" style="background:#0ea5e9; margin-bottom:5px; font-size: 0.8em;">⚡ +10%</button>
-                    <button onclick="triggerShock(0.90)" class="btn-start btn-block" style="background:#6366f1; margin-bottom:5px; font-size: 0.8em;">💥 -10%</button>
+                    <button onclick="triggerShock(1.05)" class="btn-start btn-block" style="background:#0ea5e9; margin-bottom:5px; font-size: 0.8em;">⚡ +5%</button>
+                    <button onclick="triggerShock(0.95)" class="btn-start btn-block" style="background:#6366f1; margin-bottom:5px; font-size: 0.8em;">💥 -5%</button>
                     <button onclick="resetPrice()" class="btn-start btn-block" style="background:#000; font-size: 0.8em;">🔄 Reset 100.-</button>
                 </div>
             </div>
@@ -143,11 +143,35 @@
         updateDBAndUI();
     }
 
-    function resetPrice() {
-        price = 100;
-        priceHistory = [100];
-        timeLabels = [0];
-        updateDBAndUI();
+    async function resetPrice() {
+        if (!confirm("Möchtest du wirklich den Kurs UND alle Schüler-Kontostände in diesem Raum zurücksetzen?")) return;
+    
+        // 1. Markt in der DB zurücksetzen
+        const { error: marketError } = await tradingDb
+            .from('market')
+            .update({ price: 100 })
+            .eq('room_id', currentRoom);
+    
+        // 2. Alle Schüler dieses Raums auf Startkapital setzen (z.B. 1000 Score)
+        const { error: leaderError } = await tradingDb
+            .from('leaderboard')
+            .update({ score: 1000 }) // Hier dein gewünschtes Startkapital eintragen
+            .eq('room_id', currentRoom);
+    
+        if (marketError || leaderError) {
+            alert("Fehler beim Reset: " + (marketError?.message || leaderError?.message));
+        } else {
+            // Lokale Anzeige im Lehrer-Dashboard aktualisieren
+            price = 100;
+            priceHistory = [100];
+            timeLabels = [0];
+            
+            // UI & Chart sofort auffrischen
+            updateDBAndUI();
+            updateLeaderboard(); 
+            
+            alert("Raum '" + currentRoom + "' wurde komplett zurückgesetzt!");
+        }
     }
 
     function toggleSimulation() {
