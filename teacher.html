@@ -232,4 +232,15 @@
         label.style.color = v > 0 ? '#00802f' : (v < 0 ? '#ef4444' : '#1e293b');
     }
 
-    function triggerShock(f)
+function triggerShock(f) { 
+        price = +(price * f).toFixed(2); 
+        updateDBAndUI(); // Sofortiges Update
+    }
+
+    function adjustVola(d) { 
+        currentVola = Math.max(0.001, currentVola + d); // Mindest-Vola 0.1%
+        document.getElementById('vola-display').innerText = (currentVola * 100).toFixed(1); 
+    }
+</script>
+</body>
+</html>
